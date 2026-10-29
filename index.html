@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AKITO ASSET VS SIMULATOR | 新NISA 過去検証シミュレーター</title>
+  <title>AKITO ASSET VS SIMULATOR | 新NISA 一括＆積立シミュレーター</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
@@ -28,10 +28,27 @@
   <div class="w-full max-w-4xl bg-slate-800 text-white rounded-2xl p-4 md:p-5 mb-5 shadow-lg border border-slate-700">
     <div class="flex flex-wrap items-center justify-between gap-2 mb-4 border-b border-slate-700 pb-3">
       <div class="flex items-center gap-2">
-        <span class="bg-amber-500 text-slate-950 font-black px-2.5 py-0.5 rounded text-xs tracking-wider">AKITO EDITION</span>
-        <h1 class="font-bold text-base md:text-lg">新NISA 銘柄ガチンコ比較シミュレーター</h1>
+        <span class="bg-amber-500 text-slate-950 font-black px-2.5 py-0.5 rounded text-xs tracking-wider">AKITO EDITION v2</span>
+        <h1 class="font-bold text-base md:text-lg">新NISA 銘柄ガチンコ比較シミュレーター（一括＆積立対応）</h1>
       </div>
       <div class="text-xs text-slate-400">※1989年12月〜2026年（円換算・配当込指数ベース推計）</div>
+    </div>
+
+    <!-- 投資モード切替タブ -->
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <div class="inline-flex bg-slate-900 p-1 rounded-xl border border-slate-700">
+        <button id="modeLumpBtn" onclick="setInvestMode('lump')" class="px-4 py-1.5 rounded-lg text-xs md:text-sm font-black transition bg-amber-500 text-slate-950 shadow">
+          💰 一括投資モード
+        </button>
+        <button id="modeDcaBtn" onclick="setInvestMode('dca')" class="px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold transition text-slate-400 hover:text-white">
+          📈 毎月積立モード
+        </button>
+      </div>
+
+      <!-- 金額クイックプリセット -->
+      <div id="amountPresets" class="flex flex-wrap items-center gap-1.5">
+        <!-- JSでモードに応じてボタンを切り替え -->
+      </div>
     </div>
 
     <!-- 設定グリッド -->
@@ -49,9 +66,9 @@
         <select id="startYear" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-white focus:outline-none focus:border-amber-500"></select>
       </div>
       <div>
-        <label class="block text-xs text-slate-400 mb-1">💰 初期投資額（一括）</label>
+        <label id="amountInputLabel" class="block text-xs text-slate-400 mb-1">💰 初期投資額（一括）</label>
         <div class="flex items-center bg-slate-900 border border-slate-600 rounded-lg px-3 py-2">
-          <input id="initialAmount" type="number" value="100" min="10" max="10000" step="10" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
+          <input id="initialAmount" type="number" value="100" min="1" max="10000" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
           <span class="text-xs text-slate-400 ml-1">万円</span>
         </div>
       </div>
@@ -99,6 +116,7 @@
     <div class="border-b border-slate-200 pb-3 mb-4">
       <div class="flex flex-wrap items-center gap-2 mb-1.5">
         <span id="badgeVs" class="bg-slate-900 text-amber-400 text-xs font-bold px-2.5 py-1 rounded">日経平均 vs S&P500</span>
+        <span id="modeBadge" class="bg-emerald-700 text-white text-xs font-bold px-2 py-0.5 rounded">一括投資</span>
         <span id="subCondition" class="text-xs text-slate-500 font-medium">1989年12月末に一括投資・配当再投資・手数料考慮せず</span>
       </div>
       <h2 id="mainHeadline" class="text-lg md:text-2xl font-black text-slate-900 tracking-tight leading-snug">
@@ -115,7 +133,7 @@
           <span id="cardNameA" class="bg-red-600 text-white font-bold text-xs md:text-sm px-2.5 py-0.5 rounded">日経平均</span>
           <span id="cardMultA" class="text-red-600 font-black text-base md:text-xl">1.00倍</span>
         </div>
-        <div class="text-[11px] text-slate-500 font-medium">元本<span class="baseAmountLabel">100</span>万円の評価額</div>
+        <div class="text-[11px] text-slate-500 font-medium">累計元本 <span class="currentPrincipalLabel font-bold text-slate-700">100</span>万円 の評価額</div>
         <div id="cardValA" class="text-2xl md:text-4xl font-black text-slate-900 my-0.5 tracking-tight">100万円</div>
         <div id="cardDiffA" class="text-xs font-bold bg-slate-100 text-slate-600 inline-block px-2 py-0.5 rounded w-full">
           ±0万円 (±0.0%)
@@ -128,7 +146,7 @@
           <span id="cardNameB" class="bg-blue-600 text-white font-bold text-xs md:text-sm px-2.5 py-0.5 rounded">S&P500</span>
           <span id="cardMultB" class="text-blue-600 font-black text-base md:text-xl">1.00倍</span>
         </div>
-        <div class="text-[11px] text-slate-500 font-medium">元本<span class="baseAmountLabel">100</span>万円の評価額</div>
+        <div class="text-[11px] text-slate-500 font-medium">累計元本 <span class="currentPrincipalLabel font-bold text-slate-700">100</span>万円 の評価額</div>
         <div id="cardValB" class="text-2xl md:text-4xl font-black text-slate-900 my-0.5 tracking-tight">100万円</div>
         <div id="cardDiffB" class="text-xs font-bold bg-slate-100 text-slate-600 inline-block px-2 py-0.5 rounded w-full">
           ±0万円 (±0.0%)
@@ -138,11 +156,11 @@
 
     <!-- チャート描画エリア -->
     <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 mb-4 bg-white relative">
-      <div class="flex items-center justify-between mb-1">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
         <div id="chartDateLabel" class="text-sm md:text-base font-bold text-slate-700">1989年12月</div>
         <div class="text-xs text-slate-500 flex items-center gap-1.5">
           <span class="inline-block w-4 border-t-2 border-dashed border-emerald-600"></span>
-          <span>元本<span class="baseAmountLabel">100</span>万円（点線より下＝元本割れ）</span>
+          <span>元本ライン：累計<span class="currentPrincipalLabel font-bold text-emerald-700">100</span>万円（点線より下＝元本割れ）</span>
         </div>
       </div>
       <div class="w-full h-[250px] md:h-[310px]">
@@ -153,8 +171,8 @@
     <!-- 下部3連ステータスボックス -->
     <div class="grid grid-cols-3 gap-2.5 md:gap-4">
       <div class="border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-amber-50/70">
-        <div class="text-[11px] text-slate-500 font-bold mb-0.5">経過</div>
-        <div id="elapsedLabel" class="text-sm md:text-lg font-black text-slate-900">0年0か月</div>
+        <div class="text-[11px] text-slate-500 font-bold mb-0.5">経過（累計元本）</div>
+        <div id="elapsedLabel" class="text-xs md:text-base font-black text-slate-900">0年0か月 (100万円)</div>
       </div>
       <div id="statusBoxA" class="border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-emerald-50/70">
         <div id="statusTitleA" class="text-[11px] text-slate-500 font-bold mb-0.5">日経平均の状態</div>
@@ -167,7 +185,7 @@
     </div>
 
     <div class="mt-3 text-[11px] text-slate-400 leading-relaxed">
-      ※各年末の主要インデックス推移（円換算ベース）から月次推移を補間したシミュレーションです。実際のファンドの信託報酬や税金は考慮していません。
+      ※各年末の主要インデックス推移（円換算ベース）から月次推移を補間したシミュレーションです。積立モードでは毎月定額で各資産の口数を買い増すドルコスト平均法で計算しています。
     </div>
   </div>
 
@@ -178,7 +196,6 @@
 const YEARS = [];
 for (let y = 1989; y <= 2026; y++) YEARS.push(y);
 
-// 1989年末〜2026年の各年末インデックス値（円換算・配当再投資ベースの近似トラッキングデータ）
 const ASSET_DATA = {
   nikkei: {
     name: "日経平均",
@@ -262,7 +279,6 @@ const ASSET_DATA = {
   }
 };
 
-// 年ごとの象徴的な経済・歴史イベント
 const HISTORICAL_EVENTS = {
   1989: "日経平均 史上最高値(38,915円)",
   1990: "バブル崩壊始まる",
@@ -307,7 +323,8 @@ const HISTORICAL_EVENTS = {
 // ==========================================
 // 2. 状態管理変数
 // ==========================================
-let timeline = []; // 月次データ配列 [{year, month, valA, valB, multA, multB}]
+let investMode = 'lump'; // 'lump' (一括) or 'dca' (毎月積立)
+let timeline = [];
 let currentIndex = 0;
 let timerId = null;
 let isPlaying = false;
@@ -322,15 +339,12 @@ const canvas = document.getElementById('simCanvas');
 const ctx = canvas.getContext('2d');
 
 // ==========================================
-// 3. 初期化処理
+// 3. 初期化＆モード切替処理
 // ==========================================
 function init() {
-  // セレクトボックス生成
   Object.keys(ASSET_DATA).forEach(key => {
-    const optA = new Option(ASSET_DATA[key].fullName, key);
-    const optB = new Option(ASSET_DATA[key].fullName, key);
-    assetASelect.add(optA);
-    assetBSelect.add(optB);
+    assetASelect.add(new Option(ASSET_DATA[key].fullName, key));
+    assetBSelect.add(new Option(ASSET_DATA[key].fullName, key));
   });
   assetASelect.value = 'nikkei';
   assetBSelect.value = 'sp500';
@@ -341,7 +355,6 @@ function init() {
   }
   startYearSelect.value = 1989;
 
-  // イベントリスナー登録
   [assetASelect, assetBSelect, startYearSelect, initialAmountInput].forEach(el => {
     el.addEventListener('change', () => {
       stopPlay();
@@ -366,7 +379,68 @@ function init() {
 
   window.addEventListener('resize', () => renderFrame());
 
+  renderAmountPresets();
   buildTimeline();
+  renderFrame();
+}
+
+function setInvestMode(mode) {
+  investMode = mode;
+  stopPlay();
+
+  const lumpBtn = document.getElementById('modeLumpBtn');
+  const dcaBtn = document.getElementById('modeDcaBtn');
+  const label = document.getElementById('amountInputLabel');
+
+  if (mode === 'lump') {
+    lumpBtn.className = 'px-4 py-1.5 rounded-lg text-xs md:text-sm font-black transition bg-amber-500 text-slate-950 shadow';
+    dcaBtn.className = 'px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold transition text-slate-400 hover:text-white';
+    label.textContent = '💰 初期投資額（一括）';
+    initialAmountInput.value = 100;
+    initialAmountInput.step = 10;
+  } else {
+    dcaBtn.className = 'px-4 py-1.5 rounded-lg text-xs md:text-sm font-black transition bg-amber-500 text-slate-950 shadow';
+    lumpBtn.className = 'px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold transition text-slate-400 hover:text-white';
+    label.textContent = '📈 毎月の積立額';
+    initialAmountInput.value = 3;
+    initialAmountInput.step = 1;
+  }
+
+  renderAmountPresets();
+  buildTimeline();
+  currentIndex = 0;
+  seekBar.value = 0;
+  renderFrame();
+}
+
+function renderAmountPresets() {
+  const container = document.getElementById('amountPresets');
+  if (investMode === 'lump') {
+    container.innerHTML = `
+      <span class="text-xs text-slate-400 mr-1">一括額:</span>
+      <button onclick="setAmount(50)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">50万円</button>
+      <button onclick="setAmount(100)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">100万円</button>
+      <button onclick="setAmount(300)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">300万円</button>
+      <button onclick="setAmount(1000)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">1,000万円</button>
+    `;
+  } else {
+    container.innerHTML = `
+      <span class="text-xs text-slate-400 mr-1">積立額:</span>
+      <button onclick="setAmount(1)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">月1万円</button>
+      <button onclick="setAmount(3)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">月3万円</button>
+      <button onclick="setAmount(5)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">月5万円</button>
+      <button onclick="setAmount(10)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">月10万円(つみたて枠満額)</button>
+      <button onclick="setAmount(30)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">月30万円(NISA最速満額)</button>
+    `;
+  }
+}
+
+function setAmount(val) {
+  initialAmountInput.value = val;
+  stopPlay();
+  buildTimeline();
+  currentIndex = 0;
+  seekBar.value = 0;
   renderFrame();
 }
 
@@ -380,7 +454,7 @@ function setPresetYear(year) {
 }
 
 // ==========================================
-// 4. 月次データの補間生成（リアルな小刻み変動付き）
+// 4. 月次データの補間生成（一括＆ドルコスト平均法対応）
 // ==========================================
 function seededNoise(seed) {
   const x = Math.sin(seed * 9999.123) * 10000;
@@ -391,7 +465,7 @@ function buildTimeline() {
   const keyA = assetASelect.value;
   const keyB = assetBSelect.value;
   const startY = parseInt(startYearSelect.value, 10);
-  const baseMan = parseFloat(initialAmountInput.value) || 100;
+  const inputMan = parseFloat(initialAmountInput.value) || (investMode === 'lump' ? 100 : 3);
 
   const startIdx = YEARS.indexOf(startY);
   const rawA = ASSET_DATA[keyA].values.slice(startIdx);
@@ -401,15 +475,20 @@ function buildTimeline() {
 
   timeline = [];
 
-  // 初月（スタート時点 = 12月）
+  // 初月（スタート時点 = 12月）の基準価格を1.0として口数計算
+  let unitsA = inputMan / 1.0;
+  let unitsB = inputMan / 1.0;
+  let totalPrincipal = inputMan;
+
   timeline.push({
     year: startY,
     month: 12,
     elapsedMonths: 0,
+    principal: totalPrincipal,
+    valA: inputMan,
+    valB: inputMan,
     multA: 1.0,
-    multB: 1.0,
-    valA: baseMan,
-    valB: baseMan
+    multB: 1.0
   });
 
   let elapsed = 0;
@@ -423,46 +502,69 @@ function buildTimeline() {
     for (let m = 1; m <= 12; m++) {
       elapsed++;
       const t = m / 12;
-      // 12月時点は正確に年次データと一致させ、途中の月は自然な揺らぎを加える
       const waveA = (m === 12) ? 0 : (seededNoise(y * 100 + m * 7 + 1) - 0.5) * 0.045;
       const waveB = (m === 12) ? 0 : (seededNoise(y * 100 + m * 13 + 2) - 0.5) * 0.045;
 
-      const multA = Math.max(0.05, (prevA + (nextA - prevA) * t) * (1 + waveA));
-      const multB = Math.max(0.05, (prevB + (nextB - prevB) * t) * (1 + waveB));
+      // スタート時を1.0としたその月の基準価格
+      const priceA = Math.max(0.05, (prevA + (nextA - prevA) * t) * (1 + waveA));
+      const priceB = Math.max(0.05, (prevB + (nextB - prevB) * t) * (1 + waveB));
+
+      if (investMode === 'dca') {
+        // 毎月積立モード：その月の価格で口数を買い増し
+        totalPrincipal += inputMan;
+        unitsA += inputMan / priceA;
+        unitsB += inputMan / priceB;
+      }
+
+      const valA = unitsA * priceA;
+      const valB = unitsB * priceB;
 
       timeline.push({
         year: y,
         month: m,
         elapsedMonths: elapsed,
-        multA: multA,
-        multB: multB,
-        valA: baseMan * multA,
-        valB: baseMan * multB
+        principal: totalPrincipal,
+        valA: valA,
+        valB: valB,
+        multA: valA / totalPrincipal,
+        multB: valB / totalPrincipal
       });
     }
   }
 
   seekBar.max = timeline.length - 1;
 
-  // 固定ヘッダーテキスト更新
+  // ヘッダーテキスト更新
   const nameA = ASSET_DATA[keyA].name;
   const nameB = ASSET_DATA[keyB].name;
   document.getElementById('badgeVs').textContent = `${nameA} vs ${nameB}`;
-  document.getElementById('subCondition').textContent = `${startY}年12月末に一括投資・配当再投資・手数料考慮せず`;
-  document.getElementById('mainHeadline').innerHTML = 
-    `${startY === 1989 ? 'バブル最高値の年に' : startY + '年末に'}${baseMan}万円買っていたら<br class="md:hidden">${nameA} vs ${nameB}、その後どうなった？`;
+
+  const modeBadge = document.getElementById('modeBadge');
+  if (investMode === 'lump') {
+    modeBadge.textContent = '一括投資';
+    modeBadge.className = 'bg-emerald-700 text-white text-xs font-bold px-2 py-0.5 rounded';
+    document.getElementById('subCondition').textContent = `${startY}年12月末に一括投資・配当再投資・手数料考慮せず`;
+    document.getElementById('mainHeadline').innerHTML = 
+      `${startY === 1989 ? 'バブル最高値の年に' : startY + '年末に'}${inputMan}万円一括で買っていたら<br class="md:hidden">${nameA} vs ${nameB}、その後どうなった？`;
+  } else {
+    modeBadge.textContent = '毎月積立';
+    modeBadge.className = 'bg-blue-700 text-white text-xs font-bold px-2 py-0.5 rounded';
+    document.getElementById('subCondition').textContent = `${startY}年12月末から毎月${inputMan}万円積立・配当再投資・手数料考慮せず`;
+    document.getElementById('mainHeadline').innerHTML = 
+      `${startY === 1989 ? 'バブル最高値の年から' : startY + '年末から'}毎月${inputMan}万円積み立てていたら<br class="md:hidden">${nameA} vs ${nameB}、その後どうなった？`;
+  }
+
   document.getElementById('cardNameA').textContent = nameA;
   document.getElementById('cardNameB').textContent = nameB;
   document.getElementById('statusTitleA').textContent = `${nameA}の状態`;
-  document.querySelectorAll('.baseAmountLabel').forEach(el => el.textContent = baseMan);
 }
 
 // ==========================================
 // 5. 描画＆UI更新
 // ==========================================
-function formatDiff(val, base) {
-  const diff = Math.round(val - base);
-  const pct = Math.round(((val / base) - 1) * 100);
+function formatDiff(val, principal) {
+  const diff = Math.round(val - principal);
+  const pct = Math.round(((val / principal) - 1) * 100);
   const sign = diff > 0 ? '+' : '';
   return `${sign}${diff.toLocaleString()}万円 (${sign}${pct}%)`;
 }
@@ -470,33 +572,38 @@ function formatDiff(val, base) {
 function renderFrame() {
   if (!timeline.length) return;
   const pt = timeline[currentIndex];
-  const baseMan = parseFloat(initialAmountInput.value) || 100;
   const keyA = assetASelect.value;
   const keyB = assetBSelect.value;
+  const principal = pt.principal;
+
+  // 累計元本ラベルの更新
+  document.querySelectorAll('.currentPrincipalLabel').forEach(el => {
+    el.textContent = Math.round(principal).toLocaleString();
+  });
 
   // スコアカードA更新
   document.getElementById('cardMultA').textContent = `${pt.multA.toFixed(2)}倍`;
   document.getElementById('cardValA').textContent = `${Math.round(pt.valA).toLocaleString()}万円`;
   const diffElA = document.getElementById('cardDiffA');
-  diffElA.textContent = formatDiff(pt.valA, baseMan);
+  diffElA.textContent = formatDiff(pt.valA, principal);
   diffElA.className = `text-xs font-bold inline-block px-2 py-0.5 rounded w-full ${
-    pt.valA >= baseMan ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'
+    pt.valA >= principal ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'
   }`;
 
   // スコアカードB更新
   document.getElementById('cardMultB').textContent = `${pt.multB.toFixed(2)}倍`;
   document.getElementById('cardValB').textContent = `${Math.round(pt.valB).toLocaleString()}万円`;
   const diffElB = document.getElementById('cardDiffB');
-  diffElB.textContent = formatDiff(pt.valB, baseMan);
+  diffElB.textContent = formatDiff(pt.valB, principal);
   diffElB.className = `text-xs font-bold inline-block px-2 py-0.5 rounded w-full ${
-    pt.valB >= baseMan ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-600'
+    pt.valB >= principal ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-600'
   }`;
 
   // 日付＆経過期間
   document.getElementById('chartDateLabel').textContent = `${pt.year}年${pt.month}月`;
   const yrs = Math.floor(pt.elapsedMonths / 12);
   const mos = pt.elapsedMonths % 12;
-  document.getElementById('elapsedLabel').textContent = `${yrs}年${mos}か月`;
+  document.getElementById('elapsedLabel').textContent = `${yrs}年${mos}か月 (${Math.round(principal).toLocaleString()}万円)`;
 
   // 銘柄Aのステータスボックス
   const pctA = Math.round((pt.multA - 1) * 100);
@@ -516,10 +623,10 @@ function renderFrame() {
   // 歴史イベント表示
   document.getElementById('eventLabel').textContent = HISTORICAL_EVENTS[pt.year] || `${pt.year}年の相場推移`;
 
-  drawChart(baseMan, ASSET_DATA[keyA].name, ASSET_DATA[keyB].name);
+  drawChart(ASSET_DATA[keyA].name, ASSET_DATA[keyB].name);
 }
 
-function drawChart(baseMan, nameA, nameB) {
+function drawChart(nameA, nameB) {
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
   canvas.width = rect.width * dpr;
@@ -530,23 +637,23 @@ function drawChart(baseMan, nameA, nameB) {
   const H = rect.height;
   ctx.clearRect(0, 0, W, H);
 
-  const padL = 58;
+  const padL = 62;
   const padR = 28;
   const padT = 24;
   const padB = 30;
   const plotW = W - padL - padR;
   const plotH = H - padT - padB;
 
-  // 表示中のデータ範囲（最低24ヶ月分は横軸を確保）
   const visibleCount = Math.max(24, currentIndex + 1);
   const slice = timeline.slice(0, currentIndex + 1);
 
-  let maxVal = baseMan * 1.3;
+  let maxVal = slice[slice.length - 1].principal * 1.3;
   for (let i = 0; i < slice.length; i++) {
     if (slice[i].valA > maxVal) maxVal = slice[i].valA;
     if (slice[i].valB > maxVal) maxVal = slice[i].valB;
+    if (slice[i].principal > maxVal) maxVal = slice[i].principal;
   }
-  maxVal = maxVal * 1.12; // 上部に少し余白を持たせる
+  maxVal = maxVal * 1.12;
 
   const getX = (idx) => padL + (idx / (visibleCount - 1)) * plotW;
   const getY = (val) => padT + plotH - (val / maxVal) * plotH;
@@ -569,19 +676,33 @@ function drawChart(baseMan, nameA, nameB) {
     ctx.fillText(`${Math.round(v).toLocaleString()}万円`, padL - 6, y + 4);
   }
 
-  // 元本割れゾーン（淡い赤背景）と元本ライン（緑破線）
-  const baseY = getY(baseMan);
-  if (baseY < padT + plotH) {
-    ctx.fillStyle = 'rgba(244, 63, 94, 0.08)';
-    ctx.fillRect(padL, baseY, plotW, (padT + plotH) - baseY);
-
+  // 元本割れゾーン（淡い赤背景）と元本ライン（緑破線）の描画
+  if (slice.length >= 1) {
     ctx.save();
+    ctx.fillStyle = 'rgba(244, 63, 94, 0.08)';
+    ctx.beginPath();
+    ctx.moveTo(getX(0), padT + plotH);
+    for (let i = 0; i < slice.length; i++) {
+      ctx.lineTo(getX(i), getY(slice[i].principal));
+    }
+    ctx.lineTo(getX(slice.length - 1), padT + plotH);
+    ctx.closePath();
+    ctx.fill();
+
     ctx.strokeStyle = '#059669';
     ctx.lineWidth = 1.8;
     ctx.setLineDash([5, 5]);
     ctx.beginPath();
-    ctx.moveTo(padL, baseY);
-    ctx.lineTo(W - padR, baseY);
+    for (let i = 0; i < slice.length; i++) {
+      const x = getX(i);
+      const y = getY(slice[i].principal);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    if (investMode === 'lump') {
+      // 一括モードのときは右端まで水平破線を伸ばす
+      ctx.lineTo(W - padR, getY(slice[0].principal));
+    }
     ctx.stroke();
     ctx.restore();
   }
@@ -617,7 +738,6 @@ function drawChart(baseMan, nameA, nameB) {
     }
     ctx.stroke();
 
-    // 先端ドット＆銘柄名ラベル
     const lastIdx = slice.length - 1;
     const lx = getX(lastIdx);
     const ly = getY(slice[lastIdx][prop]);
