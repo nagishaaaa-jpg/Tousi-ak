@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AKITO ASSET VS SIMULATOR | 新NISA 過去検証シミュレーター</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background-color: #0f172a;
+      color: #1e293b;
+    }
+    .sim-card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+    input[type="range"] {
+      accent-color: #2563eb;
+    }
+  </style>
+</head>
+<body class="min-h-screen py-6 px-3 md:px-6 flex flex-col items-center">
+
+  <!-- 操作パネル（ダークモードヘッダー） -->
+  <div class="w-full max-w-4xl bg-slate-800 text-white rounded-2xl p-4 md:p-5 mb-5 shadow-lg border border-slate-700">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-4 border-b border-slate-700 pb-3">
+      <div class="flex items-center gap-2">
+        <span class="bg-amber-500 text-slate-950 font-black px-2.5 py-0.5 rounded text-xs tracking-wider">AKITO EDITION</span>
+        <h1 class="font-bold text-base md:text-lg">新NISA 銘柄ガチンコ比較シミュレーター</h1>
+      </div>
+      <div class="text-xs text-slate-400">※1989年12月〜2026年（円換算・配当込指数ベース推計）</div>
+    </div>
+
+    <!-- 設定グリッド -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+      <div>
+        <label class="block text-xs text-slate-400 mb-1">🅰️ 銘柄1（赤ライン）</label>
+        <select id="assetA" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-red-400 focus:outline-none focus:border-red-500"></select>
+      </div>
+      <div>
+        <label class="block text-xs text-slate-400 mb-1">🅱️ 銘柄2（青ライン）</label>
+        <select id="assetB" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-blue-400 focus:outline-none focus:border-blue-500"></select>
+      </div>
+      <div>
+        <label class="block text-xs text-slate-400 mb-1">📅 投資スタート年</label>
+        <select id="startYear" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-white focus:outline-none focus:border-amber-500"></select>
+      </div>
+      <div>
+        <label class="block text-xs text-slate-400 mb-1">💰 初期投資額（一括）</label>
+        <div class="flex items-center bg-slate-900 border border-slate-600 rounded-lg px-3 py-2">
+          <input id="initialAmount" type="number" value="100" min="10" max="10000" step="10" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
+          <span class="text-xs text-slate-400 ml-1">万円</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 時代プリセットボタン -->
+    <div class="flex flex-wrap items-center gap-1.5 mb-4">
+      <span class="text-xs text-slate-400 mr-1">定番スタート時期:</span>
+      <button onclick="setPresetYear(1989)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">1989 バブル最高値</button>
+      <button onclick="setPresetYear(2000)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2000 ITバブル</button>
+      <button onclick="setPresetYear(2007)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2007 リーマン直前</button>
+      <button onclick="setPresetYear(2013)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2013 アベノミクス</button>
+      <button onclick="setPresetYear(2020)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2020 コロナショック</button>
+    </div>
+
+    <!-- 再生コントロール＆シークバー -->
+    <div class="flex flex-wrap items-center gap-3 bg-slate-900/90 p-3 rounded-xl">
+      <button id="playBtn" onclick="togglePlay()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-5 py-2 rounded-lg text-sm flex items-center gap-1.5 transition shadow">
+        <span id="playIcon">▶</span> <span id="playText">再生</span>
+      </button>
+      <button onclick="resetSim()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-3 py-2 rounded-lg text-xs transition">
+        ⏮ リセット
+      </button>
+
+      <div class="flex-1 min-w-[160px] flex items-center gap-2">
+        <input id="seekBar" type="range" min="0" max="100" value="0" class="w-full cursor-pointer">
+      </div>
+
+      <div class="flex items-center gap-1">
+        <span class="text-xs text-slate-400">速度:</span>
+        <select id="speedSelect" class="bg-slate-800 border border-slate-600 text-xs rounded px-2 py-1 text-white font-bold">
+          <option value="120">1x (じっくり)</option>
+          <option value="60" selected>2x (標準)</option>
+          <option value="25">5x (高速)</option>
+          <option value="10">10x (超高速)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 動画風メインシミュレーターボード -->
+  <div class="w-full max-w-4xl sim-card p-4 md:p-7">
+    
+    <!-- 上部タイトルヘッダー -->
+    <div class="border-b border-slate-200 pb-3 mb-4">
+      <div class="flex flex-wrap items-center gap-2 mb-1.5">
+        <span id="badgeVs" class="bg-slate-900 text-amber-400 text-xs font-bold px-2.5 py-1 rounded">日経平均 vs S&P500</span>
+        <span id="subCondition" class="text-xs text-slate-500 font-medium">1989年12月末に一括投資・配当再投資・手数料考慮せず</span>
+      </div>
+      <h2 id="mainHeadline" class="text-lg md:text-2xl font-black text-slate-900 tracking-tight leading-snug">
+        1989年末に100万円買っていたら<br class="md:hidden">
+        <span id="headlineVs">日経平均 vs S&P500</span>、その後どうなった？
+      </h2>
+    </div>
+
+    <!-- 2銘柄スコアカード -->
+    <div class="grid grid-cols-2 gap-3 md:gap-5 mb-4">
+      <!-- 銘柄A（赤） -->
+      <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 relative bg-white shadow-sm">
+        <div class="flex items-center justify-between mb-1">
+          <span id="cardNameA" class="bg-red-600 text-white font-bold text-xs md:text-sm px-2.5 py-0.5 rounded">日経平均</span>
+          <span id="cardMultA" class="text-red-600 font-black text-base md:text-xl">1.00倍</span>
+        </div>
+        <div class="text-[11px] text-slate-500 font-medium">元本<span class="baseAmountLabel">100</span>万円の評価額</div>
+        <div id="cardValA" class="text-2xl md:text-4xl font-black text-slate-900 my-0.5 tracking-tight">100万円</div>
+        <div id="cardDiffA" class="text-xs font-bold bg-slate-100 text-slate-600 inline-block px-2 py-0.5 rounded w-full">
+          ±0万円 (±0.0%)
+        </div>
+      </div>
+
+      <!-- 銘柄B（青） -->
+      <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 relative bg-white shadow-sm">
+        <div class="flex items-center justify-between mb-1">
+          <span id="cardNameB" class="bg-blue-600 text-white font-bold text-xs md:text-sm px-2.5 py-0.5 rounded">S&P500</span>
+          <span id="cardMultB" class="text-blue-600 font-black text-base md:text-xl">1.00倍</span>
+        </div>
+        <div class="text-[11px] text-slate-500 font-medium">元本<span class="baseAmountLabel">100</span>万円の評価額</div>
+        <div id="cardValB" class="text-2xl md:text-4xl font-black text-slate-900 my-0.5 tracking-tight">100万円</div>
+        <div id="cardDiffB" class="text-xs font-bold bg-slate-100 text-slate-600 inline-block px-2 py-0.5 rounded w-full">
+          ±0万円 (±0.0%)
+        </div>
+      </div>
+    </div>
+
+    <!-- チャート描画エリア -->
+    <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 mb-4 bg-white relative">
+      <div class="flex items-center justify-between mb-1">
+        <div id="chartDateLabel" class="text-sm md:text-base font-bold text-slate-700">1989年12月</div>
+        <div class="text-xs text-slate-500 flex items-center gap-1.5">
+          <span class="inline-block w-4 border-t-2 border-dashed border-emerald-600"></span>
+          <span>元本<span class="baseAmountLabel">100</span>万円（点線より下＝元本割れ）</span>
+        </div>
+      </div>
+      <div class="w-full h-[250px] md:h-[310px]">
+        <canvas id="simCanvas" class="w-full h-full"></canvas>
+      </div>
+    </div>
+
+    <!-- 下部3連ステータスボックス -->
+    <div class="grid grid-cols-3 gap-2.5 md:gap-4">
+      <div class="border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-amber-50/70">
+        <div class="text-[11px] text-slate-500 font-bold mb-0.5">経過</div>
+        <div id="elapsedLabel" class="text-sm md:text-lg font-black text-slate-900">0年0か月</div>
+      </div>
+      <div id="statusBoxA" class="border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-emerald-50/70">
+        <div id="statusTitleA" class="text-[11px] text-slate-500 font-bold mb-0.5">日経平均の状態</div>
+        <div id="statusTextA" class="text-xs md:text-base font-black text-slate-900 truncate">運用スタート</div>
+      </div>
+      <div class="border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-slate-50">
+        <div class="text-[11px] text-slate-500 font-bold mb-0.5">その年の出来事</div>
+        <div id="eventLabel" class="text-xs md:text-base font-black text-slate-900 truncate">日経平均 史上最高値(38,915円)</div>
+      </div>
+    </div>
+
+    <div class="mt-3 text-[11px] text-slate-400 leading-relaxed">
+      ※各年末の主要インデックス推移（円換算ベース）から月次推移を補間したシミュレーションです。実際のファンドの信託報酬や税金は考慮していません。
+    </div>
+  </div>
+
+<script>
+// ==========================================
+// 1. ヒストリカル年次データ（1989年末=100とした円換算推移イメージ）
+// ==========================================
+const YEARS = [];
+for (let y = 1989; y <= 2026; y++) YEARS.push(y);
+
+// 1989年末〜2026年の各年末インデックス値（円換算・配当再投資ベースの近似トラッキングデータ）
+const ASSET_DATA = {
+  nikkei: {
+    name: "日経平均",
+    fullName: "日経平均株価",
+    values: [
+      100, 62, 59, 44, 45, 51, 51, 50, 39, 36, 49, // 1989-1999
+      36, 28, 23, 29, 31, 44, 48, 43, 25, 30,      // 2000-2009
+      29, 25, 31, 49, 53, 59, 60, 73, 65, 78,      // 2010-2019
+      92, 98, 91, 120, 146, 158, 166               // 2020-2026
+    ]
+  },
+  topix: {
+    name: "TOPIX",
+    fullName: "東証株価指数(TOPIX)",
+    values: [
+      100, 61, 60, 46, 51, 55, 56, 53, 43, 40, 60, // 1989-1999
+      46, 37, 31, 39, 43, 63, 65, 58, 34, 37,      // 2000-2009
+      38, 32, 39, 61, 68, 76, 78, 96, 82, 97,      // 2010-2019
+      110, 124, 123, 160, 195, 212, 225            // 2020-2026
+    ]
+  },
+  sp500: {
+    name: "S&P500",
+    fullName: "米国株式(S&P500・円換算)",
+    values: [
+      100, 91, 110, 118, 117, 108, 154, 214, 320, 365, 395, // 1989-1999
+      398, 405, 290, 335, 355, 425, 495, 490, 255, 330,     // 2000-2009
+      332, 322, 420, 685, 905, 930, 1015, 1190, 1110, 1440, // 2010-2019
+      1610, 2310, 2150, 2920, 4100, 4650, 4980              // 2020-2026
+    ]
+  },
+  orukan: {
+    name: "オルカン",
+    fullName: "全世界株式(オール・カントリー)",
+    values: [
+      100, 80, 92, 90, 100, 96, 120, 152, 195, 215, 250,    // 1989-1999
+      240, 235, 180, 225, 250, 315, 385, 405, 200, 275,     // 2000-2009
+      275, 245, 320, 500, 620, 620, 665, 810, 725, 920,     // 2010-2019
+      1020, 1380, 1300, 1730, 2350, 2680, 2860              // 2020-2026
+    ]
+  },
+  nasdaq100: {
+    name: "NASDAQ100",
+    fullName: "米国大型ハイテク(NASDAQ100)",
+    values: [
+      100, 85, 130, 140, 142, 130, 195, 310, 430, 710, 1320, // 1989-1999
+      940, 730, 430, 580, 620, 740, 800, 910, 430, 670,      // 2000-2009
+      710, 700, 930, 1550, 2150, 2380, 2500, 3250, 3180, 4350,// 2010-2019
+      6100, 8800, 6800, 11300, 16800, 19800, 21500           // 2020-2026
+    ]
+  },
+  vti: {
+    name: "全米株式(VTI)",
+    fullName: "全米株式(CRSP USトータル)",
+    values: [
+      100, 89, 112, 122, 121, 110, 156, 215, 318, 355, 390, // 1989-1999
+      392, 402, 292, 345, 370, 448, 522, 515, 268, 352,     // 2000-2009
+      362, 348, 452, 740, 970, 990, 1095, 1280, 1190, 1540, // 2010-2019
+      1750, 2480, 2280, 3090, 4310, 4880, 5220              // 2020-2026
+    ]
+  },
+  india: {
+    name: "インド株",
+    fullName: "インド株インデックス(Nifty50・円換算)",
+    values: [
+      100, 115, 140, 185, 210, 230, 185, 195, 235, 190, 290, // 1989-1999
+      250, 235, 225, 370, 430, 650, 960, 1480, 580, 1080,    // 2000-2009
+      1180, 810, 1120, 1350, 1980, 1920, 1950, 2550, 2480, 2720,// 2010-2019
+      2950, 4100, 4450, 5700, 7400, 8300, 9100               // 2020-2026
+    ]
+  },
+  gold: {
+    name: "ゴールド(金)",
+    fullName: "純金・ゴールド(円換算)",
+    values: [
+      100, 91, 79, 73, 76, 68, 72, 81, 69, 59, 53,          // 1989-1999
+      56, 66, 73, 79, 82, 108, 135, 165, 140, 180,          // 2000-2009
+      205, 215, 250, 225, 255, 235, 248, 275, 265, 310,     // 2010-2019
+      365, 395, 455, 550, 780, 960, 1080                    // 2020-2026
+    ]
+  }
+};
+
+// 年ごとの象徴的な経済・歴史イベント
+const HISTORICAL_EVENTS = {
+  1989: "日経平均 史上最高値(38,915円)",
+  1990: "バブル崩壊始まる",
+  1991: "ジュリアナ東京オープン / ソ連崩壊",
+  1992: "バブル崩壊加速・地価暴落",
+  1993: "Jリーグ開幕 / 55年体制崩壊",
+  1994: "松本サリン事件 / 円高進行",
+  1995: "阪神・淡路大震災 / 超円高(79円台)",
+  1996: "金融ビッグバン構想（山一・拓銀危機前夜）",
+  1997: "アジア通貨危機 / 山一證券自主廃業",
+  1998: "日本長期信用銀行破綻 / 金融危機",
+  1999: "ITバブル絶頂期 / ゼロ金利政策導入",
+  2000: "ITバブル崩壊始まる",
+  2001: "米国同時多発テロ / 小泉内閣発足",
+  2002: "日韓W杯開催 / ITバブル底打ち模索",
+  2003: "日経平均7,607円で大底（バブル後最安値）",
+  2004: "新紙幣発行 / 新興国BRICs台頭",
+  2005: "郵政解散・小泉劇場で日本株急反発",
+  2006: "ライブドアショック / ゼロ金利解除",
+  2007: "パリバ・ショック（サブプライム問題表面化）",
+  2008: "リーマンショック（世界金融危機）",
+  2009: "米国株大底から反発開始 / 政権交代",
+  2010: "ギリシャ危機 / 歴史的円高水準",
+  2011: "東日本大震災 / 超円高(75円台)",
+  2012: "第2次安倍内閣発足・アベノミクス始動",
+  2013: "黒田バズーカ（異次元緩和）で株高・円安",
+  2014: "消費税8%増税 / NISA制度スタート",
+  2015: "チャイナショック / 日経平均2万円回復",
+  2016: "英国EU離脱決定 / トランプ氏当選",
+  2017: "世界同時株高・ビットコインバブル",
+  2018: "米中貿易摩擦 / つみたてNISA開始",
+  2019: "令和改元 / 米FRB予防的利下げ",
+  2020: "コロナショック暴落＆異次元金融緩和で急反発",
+  2021: "米国ハイテク株ブーム・歴史的株高",
+  2022: "米急速利上げ・ウクライナ侵攻・急速な円安",
+  2023: "生成AIブーム到来・東証PBR改革",
+  2024: "新NISA開始・日経平均34年ぶり最高値更新",
+  2025: "世界的なAI半導体投資拡大・インフレ定着",
+  2026: "新NISA普及定着・日米ともに高値圏推移"
+};
+
+// ==========================================
+// 2. 状態管理変数
+// ==========================================
+let timeline = []; // 月次データ配列 [{year, month, valA, valB, multA, multB}]
+let currentIndex = 0;
+let timerId = null;
+let isPlaying = false;
+
+const assetASelect = document.getElementById('assetA');
+const assetBSelect = document.getElementById('assetB');
+const startYearSelect = document.getElementById('startYear');
+const initialAmountInput = document.getElementById('initialAmount');
+const seekBar = document.getElementById('seekBar');
+const speedSelect = document.getElementById('speedSelect');
+const canvas = document.getElementById('simCanvas');
+const ctx = canvas.getContext('2d');
+
+// ==========================================
+// 3. 初期化処理
+// ==========================================
+function init() {
+  // セレクトボックス生成
+  Object.keys(ASSET_DATA).forEach(key => {
+    const optA = new Option(ASSET_DATA[key].fullName, key);
+    const optB = new Option(ASSET_DATA[key].fullName, key);
+    assetASelect.add(optA);
+    assetBSelect.add(optB);
+  });
+  assetASelect.value = 'nikkei';
+  assetBSelect.value = 'sp500';
+
+  for (let y = 1989; y <= 2024; y++) {
+    const label = HISTORICAL_EVENTS[y] ? `${y}年12月 (${HISTORICAL_EVENTS[y].slice(0, 12)}...)` : `${y}年12月`;
+    startYearSelect.add(new Option(label, y));
+  }
+  startYearSelect.value = 1989;
+
+  // イベントリスナー登録
+  [assetASelect, assetBSelect, startYearSelect, initialAmountInput].forEach(el => {
+    el.addEventListener('change', () => {
+      stopPlay();
+      buildTimeline();
+      currentIndex = 0;
+      seekBar.value = 0;
+      renderFrame();
+    });
+  });
+
+  seekBar.addEventListener('input', (e) => {
+    currentIndex = parseInt(e.target.value, 10);
+    renderFrame();
+  });
+
+  speedSelect.addEventListener('change', () => {
+    if (isPlaying) {
+      stopPlay();
+      startPlay();
+    }
+  });
+
+  window.addEventListener('resize', () => renderFrame());
+
+  buildTimeline();
+  renderFrame();
+}
+
+function setPresetYear(year) {
+  startYearSelect.value = year;
+  stopPlay();
+  buildTimeline();
+  currentIndex = 0;
+  seekBar.value = 0;
+  renderFrame();
+}
+
+// ==========================================
+// 4. 月次データの補間生成（リアルな小刻み変動付き）
+// ==========================================
+function seededNoise(seed) {
+  const x = Math.sin(seed * 9999.123) * 10000;
+  return x - Math.floor(x);
+}
+
+function buildTimeline() {
+  const keyA = assetASelect.value;
+  const keyB = assetBSelect.value;
+  const startY = parseInt(startYearSelect.value, 10);
+  const baseMan = parseFloat(initialAmountInput.value) || 100;
+
+  const startIdx = YEARS.indexOf(startY);
+  const rawA = ASSET_DATA[keyA].values.slice(startIdx);
+  const rawB = ASSET_DATA[keyB].values.slice(startIdx);
+  const startValA = rawA[0];
+  const startValB = rawB[0];
+
+  timeline = [];
+
+  // 初月（スタート時点 = 12月）
+  timeline.push({
+    year: startY,
+    month: 12,
+    elapsedMonths: 0,
+    multA: 1.0,
+    multB: 1.0,
+    valA: baseMan,
+    valB: baseMan
+  });
+
+  let elapsed = 0;
+  for (let i = 0; i < rawA.length - 1; i++) {
+    const y = startY + i + 1;
+    const prevA = rawA[i] / startValA;
+    const nextA = rawA[i + 1] / startValA;
+    const prevB = rawB[i] / startValB;
+    const nextB = rawB[i + 1] / startValB;
+
+    for (let m = 1; m <= 12; m++) {
+      elapsed++;
+      const t = m / 12;
+      // 12月時点は正確に年次データと一致させ、途中の月は自然な揺らぎを加える
+      const waveA = (m === 12) ? 0 : (seededNoise(y * 100 + m * 7 + 1) - 0.5) * 0.045;
+      const waveB = (m === 12) ? 0 : (seededNoise(y * 100 + m * 13 + 2) - 0.5) * 0.045;
+
+      const multA = Math.max(0.05, (prevA + (nextA - prevA) * t) * (1 + waveA));
+      const multB = Math.max(0.05, (prevB + (nextB - prevB) * t) * (1 + waveB));
+
+      timeline.push({
+        year: y,
+        month: m,
+        elapsedMonths: elapsed,
+        multA: multA,
+        multB: multB,
+        valA: baseMan * multA,
+        valB: baseMan * multB
+      });
+    }
+  }
+
+  seekBar.max = timeline.length - 1;
+
+  // 固定ヘッダーテキスト更新
+  const nameA = ASSET_DATA[keyA].name;
+  const nameB = ASSET_DATA[keyB].name;
+  document.getElementById('badgeVs').textContent = `${nameA} vs ${nameB}`;
+  document.getElementById('subCondition').textContent = `${startY}年12月末に一括投資・配当再投資・手数料考慮せず`;
+  document.getElementById('mainHeadline').innerHTML = 
+    `${startY === 1989 ? 'バブル最高値の年に' : startY + '年末に'}${baseMan}万円買っていたら<br class="md:hidden">${nameA} vs ${nameB}、その後どうなった？`;
+  document.getElementById('cardNameA').textContent = nameA;
+  document.getElementById('cardNameB').textContent = nameB;
+  document.getElementById('statusTitleA').textContent = `${nameA}の状態`;
+  document.querySelectorAll('.baseAmountLabel').forEach(el => el.textContent = baseMan);
+}
+
+// ==========================================
+// 5. 描画＆UI更新
+// ==========================================
+function formatDiff(val, base) {
+  const diff = Math.round(val - base);
+  const pct = Math.round(((val / base) - 1) * 100);
+  const sign = diff > 0 ? '+' : '';
+  return `${sign}${diff.toLocaleString()}万円 (${sign}${pct}%)`;
+}
+
+function renderFrame() {
+  if (!timeline.length) return;
+  const pt = timeline[currentIndex];
+  const baseMan = parseFloat(initialAmountInput.value) || 100;
+  const keyA = assetASelect.value;
+  const keyB = assetBSelect.value;
+
+  // スコアカードA更新
+  document.getElementById('cardMultA').textContent = `${pt.multA.toFixed(2)}倍`;
+  document.getElementById('cardValA').textContent = `${Math.round(pt.valA).toLocaleString()}万円`;
+  const diffElA = document.getElementById('cardDiffA');
+  diffElA.textContent = formatDiff(pt.valA, baseMan);
+  diffElA.className = `text-xs font-bold inline-block px-2 py-0.5 rounded w-full ${
+    pt.valA >= baseMan ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'
+  }`;
+
+  // スコアカードB更新
+  document.getElementById('cardMultB').textContent = `${pt.multB.toFixed(2)}倍`;
+  document.getElementById('cardValB').textContent = `${Math.round(pt.valB).toLocaleString()}万円`;
+  const diffElB = document.getElementById('cardDiffB');
+  diffElB.textContent = formatDiff(pt.valB, baseMan);
+  diffElB.className = `text-xs font-bold inline-block px-2 py-0.5 rounded w-full ${
+    pt.valB >= baseMan ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-600'
+  }`;
+
+  // 日付＆経過期間
+  document.getElementById('chartDateLabel').textContent = `${pt.year}年${pt.month}月`;
+  const yrs = Math.floor(pt.elapsedMonths / 12);
+  const mos = pt.elapsedMonths % 12;
+  document.getElementById('elapsedLabel').textContent = `${yrs}年${mos}か月`;
+
+  // 銘柄Aのステータスボックス
+  const pctA = Math.round((pt.multA - 1) * 100);
+  const statusTextA = document.getElementById('statusTextA');
+  const statusBoxA = document.getElementById('statusBoxA');
+  if (pt.elapsedMonths === 0) {
+    statusTextA.textContent = '運用スタート（±0%）';
+    statusBoxA.className = 'border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-slate-50';
+  } else if (pctA < 0) {
+    statusTextA.textContent = `元本割れ中...（${pctA}%）`;
+    statusBoxA.className = 'border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-emerald-50/80';
+  } else {
+    statusTextA.textContent = `プラス推移！（+${pctA}%）`;
+    statusBoxA.className = 'border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-rose-50/80';
+  }
+
+  // 歴史イベント表示
+  document.getElementById('eventLabel').textContent = HISTORICAL_EVENTS[pt.year] || `${pt.year}年の相場推移`;
+
+  drawChart(baseMan, ASSET_DATA[keyA].name, ASSET_DATA[keyB].name);
+}
+
+function drawChart(baseMan, nameA, nameB) {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+
+  const W = rect.width;
+  const H = rect.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const padL = 58;
+  const padR = 28;
+  const padT = 24;
+  const padB = 30;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+
+  // 表示中のデータ範囲（最低24ヶ月分は横軸を確保）
+  const visibleCount = Math.max(24, currentIndex + 1);
+  const slice = timeline.slice(0, currentIndex + 1);
+
+  let maxVal = baseMan * 1.3;
+  for (let i = 0; i < slice.length; i++) {
+    if (slice[i].valA > maxVal) maxVal = slice[i].valA;
+    if (slice[i].valB > maxVal) maxVal = slice[i].valB;
+  }
+  maxVal = maxVal * 1.12; // 上部に少し余白を持たせる
+
+  const getX = (idx) => padL + (idx / (visibleCount - 1)) * plotW;
+  const getY = (val) => padT + plotH - (val / maxVal) * plotH;
+
+  // 横グリッド線とY軸ラベル
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 1;
+  ctx.fillStyle = '#64748b';
+  ctx.font = '11px "Noto Sans JP", sans-serif';
+  ctx.textAlign = 'right';
+
+  const steps = 4;
+  for (let s = 0; s <= steps; s++) {
+    const v = (maxVal / steps) * s;
+    const y = getY(v);
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(W - padR, y);
+    ctx.stroke();
+    ctx.fillText(`${Math.round(v).toLocaleString()}万円`, padL - 6, y + 4);
+  }
+
+  // 元本割れゾーン（淡い赤背景）と元本ライン（緑破線）
+  const baseY = getY(baseMan);
+  if (baseY < padT + plotH) {
+    ctx.fillStyle = 'rgba(244, 63, 94, 0.08)';
+    ctx.fillRect(padL, baseY, plotW, (padT + plotH) - baseY);
+
+    ctx.save();
+    ctx.strokeStyle = '#059669';
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(padL, baseY);
+    ctx.lineTo(W - padR, baseY);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // X軸の年ラベル描画
+  ctx.fillStyle = '#64748b';
+  ctx.textAlign = 'center';
+  const startY = timeline[0].year;
+  const endY = timeline[Math.min(timeline.length - 1, visibleCount - 1)].year;
+  const yearSpan = Math.max(1, endY - startY);
+  const yearStep = yearSpan <= 6 ? 1 : yearSpan <= 15 ? 2 : 5;
+
+  for (let idx = 0; idx < visibleCount && idx < timeline.length; idx++) {
+    const item = timeline[idx];
+    if (item.month === 1 && (item.year - startY) % yearStep === 0) {
+      const x = getX(idx);
+      ctx.fillText(item.year, x, H - 8);
+    }
+  }
+
+  // ライン描画関数
+  function drawSeries(prop, color, label) {
+    if (slice.length < 2) return;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.6;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    for (let i = 0; i < slice.length; i++) {
+      const x = getX(i);
+      const y = getY(slice[i][prop]);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // 先端ドット＆銘柄名ラベル
+    const lastIdx = slice.length - 1;
+    const lx = getX(lastIdx);
+    const ly = getY(slice[lastIdx][prop]);
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(lx, ly, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.font = 'bold 12px "Noto Sans JP", sans-serif';
+    ctx.textAlign = 'right';
+    const textOffsetY = prop === 'valB' ? -10 : 16;
+    ctx.fillText(label, lx - 6, Math.max(padT + 12, Math.min(padT + plotH - 6, ly + textOffsetY)));
+  }
+
+  drawSeries('valA', '#dc2626', nameA);
+  drawSeries('valB', '#2563eb', nameB);
+}
+
+// ==========================================
+// 6. 再生・停止コントロール
+// ==========================================
+function togglePlay() {
+  if (isPlaying) {
+    stopPlay();
+  } else {
+    if (currentIndex >= timeline.length - 1) {
+      currentIndex = 0;
+      seekBar.value = 0;
+    }
+    startPlay();
+  }
+}
+
+function startPlay() {
+  isPlaying = true;
+  document.getElementById('playIcon').textContent = '⏸';
+  document.getElementById('playText').textContent = '一時停止';
+  const interval = parseInt(speedSelect.value, 10);
+
+  timerId = setInterval(() => {
+    if (currentIndex < timeline.length - 1) {
+      currentIndex++;
+      seekBar.value = currentIndex;
+      renderFrame();
+    } else {
+      stopPlay();
+    }
+  }, interval);
+}
+
+function stopPlay() {
+  isPlaying = false;
+  if (timerId) clearInterval(timerId);
+  timerId = null;
+  document.getElementById('playIcon').textContent = '▶';
+  document.getElementById('playText').textContent = '再生';
+}
+
+function resetSim() {
+  stopPlay();
+  currentIndex = 0;
+  seekBar.value = 0;
+  renderFrame();
+}
+
+init();
+</script>
+</body>
+</html>
