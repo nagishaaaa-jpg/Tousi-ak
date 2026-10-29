@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AKITO ASSET VS SIMULATOR | 新NISA 一括＆積立シミュレーター</title>
+  <title>AKITO ASSET SIMULATOR v4 | 過去比較＆未来逆算シミュレーター</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
@@ -20,196 +20,405 @@
     input[type="range"] {
       accent-color: #2563eb;
     }
+    .range-amber {
+      accent-color: #f59e0b !important;
+    }
   </style>
 </head>
-<body class="min-h-screen py-6 px-3 md:px-6 flex flex-col items-center">
+<body class="min-h-screen py-5 px-3 md:px-6 flex flex-col items-center">
 
-  <!-- 操作パネル（ダークモードヘッダー） -->
-  <div class="w-full max-w-4xl bg-slate-800 text-white rounded-2xl p-4 md:p-5 mb-5 shadow-lg border border-slate-700">
-    <div class="flex flex-wrap items-center justify-between gap-2 mb-4 border-b border-slate-700 pb-3">
+  <!-- アプリ全体ヘッダー＆メインモード切替タブ -->
+  <div class="w-full max-w-4xl mb-4">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-3 px-1">
       <div class="flex items-center gap-2">
-        <span class="bg-amber-500 text-slate-950 font-black px-2.5 py-0.5 rounded text-xs tracking-wider">AKITO EDITION v3</span>
-        <h1 class="font-bold text-base md:text-lg">新NISA 銘柄ガチンコ比較シミュレーター（億超え対応）</h1>
+        <span class="bg-amber-500 text-slate-950 font-black px-2.5 py-0.5 rounded text-xs tracking-wider">AKITO EDITION v4</span>
+        <h1 class="text-white font-bold text-base md:text-lg">新NISA 資産運用シミュレーター</h1>
       </div>
-      <div class="text-xs text-slate-400">※1989年12月〜2026年（円換算・配当込指数ベース推計）</div>
+      <div class="text-xs text-slate-400">過去検証 ＆ 未来の目標逆算</div>
     </div>
 
-    <!-- 投資モード切替タブ -->
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-      <div class="inline-flex bg-slate-900 p-1 rounded-xl border border-slate-700">
-        <button id="modeLumpBtn" onclick="setInvestMode('lump')" class="px-4 py-1.5 rounded-lg text-xs md:text-sm font-black transition bg-amber-500 text-slate-950 shadow">
-          💰 一括投資モード
-        </button>
-        <button id="modeDcaBtn" onclick="setInvestMode('dca')" class="px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold transition text-slate-400 hover:text-white">
-          📈 毎月積立モード
-        </button>
-      </div>
-
-      <!-- 金額クイックプリセット -->
-      <div id="amountPresets" class="flex flex-wrap items-center gap-1.5">
-        <!-- JSでモードに応じてボタンを切り替え -->
-      </div>
+    <!-- メインタブ（過去比較 vs 未来逆算） -->
+    <div class="grid grid-cols-2 gap-2 bg-slate-900 p-1.5 rounded-2xl border border-slate-700 shadow-lg">
+      <button id="mainTabHist" onclick="switchMainApp('hist')" class="py-2.5 px-3 rounded-xl font-black text-xs md:text-sm transition flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 shadow">
+        <span>⚔️</span> <span>過去データ VS比較</span>
+      </button>
+      <button id="mainTabGoal" onclick="switchMainApp('goal')" class="py-2.5 px-3 rounded-xl font-bold text-xs md:text-sm transition flex items-center justify-center gap-1.5 text-slate-300 hover:text-white">
+        <span>🎯</span> <span>未来の目標・逆算シミュレーション</span>
+      </button>
     </div>
+  </div>
 
-    <!-- 設定グリッド -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-      <div>
-        <label class="block text-xs text-slate-400 mb-1">🅰️ 銘柄1（赤ライン）</label>
-        <select id="assetA" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-red-400 focus:outline-none focus:border-red-500"></select>
+  <!-- ================================================================= -->
+  <!-- SECTION 1: 過去データ VS比較モード（従来機能）                      -->
+  <!-- ================================================================= -->
+  <div id="histAppSection" class="w-full max-w-4xl flex flex-col items-center">
+    <!-- 操作パネル -->
+    <div class="w-full bg-slate-800 text-white rounded-2xl p-4 md:p-5 mb-5 shadow-lg border border-slate-700">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div class="inline-flex bg-slate-900 p-1 rounded-xl border border-slate-700">
+          <button id="modeLumpBtn" onclick="setInvestMode('lump')" class="px-4 py-1.5 rounded-lg text-xs md:text-sm font-black transition bg-amber-500 text-slate-950 shadow">
+            💰 一括投資モード
+          </button>
+          <button id="modeDcaBtn" onclick="setInvestMode('dca')" class="px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold transition text-slate-400 hover:text-white">
+            📈 毎月積立モード
+          </button>
+        </div>
+        <div id="amountPresets" class="flex flex-wrap items-center gap-1.5"></div>
       </div>
-      <div>
-        <label class="block text-xs text-slate-400 mb-1">🅱️ 銘柄2（青ライン）</label>
-        <select id="assetB" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-blue-400 focus:outline-none focus:border-blue-500"></select>
+
+      <!-- 設定グリッド -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">🅰️ 銘柄1（赤ライン）</label>
+          <select id="assetA" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-red-400 focus:outline-none focus:border-red-500"></select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">🅱️ 銘柄2（青ライン）</label>
+          <select id="assetB" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-blue-400 focus:outline-none focus:border-blue-500"></select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">📅 投資スタート年</label>
+          <select id="startYear" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-white focus:outline-none focus:border-amber-500"></select>
+        </div>
+        <div>
+          <label id="amountInputLabel" class="block text-xs text-slate-400 mb-1">💰 初期投資額（一括）</label>
+          <div class="flex items-center bg-slate-900 border border-slate-600 rounded-lg px-3 py-2">
+            <input id="initialAmount" type="number" value="100" min="1" max="10000" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
+            <span class="text-xs text-slate-400 ml-1">万円</span>
+          </div>
+        </div>
       </div>
-      <div>
-        <label class="block text-xs text-slate-400 mb-1">📅 投資スタート年</label>
-        <select id="startYear" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-white focus:outline-none focus:border-amber-500"></select>
+
+      <!-- 時代プリセットボタン -->
+      <div class="flex flex-wrap items-center gap-1.5 mb-4">
+        <span class="text-xs text-slate-400 mr-1">定番スタート時期:</span>
+        <button onclick="setPresetYear(1989)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">1989 バブル最高値</button>
+        <button onclick="setPresetYear(2000)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2000 ITバブル</button>
+        <button onclick="setPresetYear(2007)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2007 リーマン直前</button>
+        <button onclick="setPresetYear(2013)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2013 アベノミクス</button>
+        <button onclick="setPresetYear(2020)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2020 コロナショック</button>
       </div>
-      <div>
-        <label id="amountInputLabel" class="block text-xs text-slate-400 mb-1">💰 初期投資額（一括）</label>
-        <div class="flex items-center bg-slate-900 border border-slate-600 rounded-lg px-3 py-2">
-          <input id="initialAmount" type="number" value="100" min="1" max="10000" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
-          <span class="text-xs text-slate-400 ml-1">万円</span>
+
+      <!-- 再生コントロール＆シークバー -->
+      <div class="flex flex-wrap items-center gap-3 bg-slate-900/90 p-3 rounded-xl">
+        <button id="playBtn" onclick="togglePlay()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-5 py-2 rounded-lg text-sm flex items-center gap-1.5 transition shadow">
+          <span id="playIcon">▶</span> <span id="playText">再生</span>
+        </button>
+        <button onclick="resetSim()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-3 py-2 rounded-lg text-xs transition">
+          ⏮ リセット
+        </button>
+        <div class="flex-1 min-w-[160px] flex items-center gap-2">
+          <input id="seekBar" type="range" min="0" max="100" value="0" class="w-full cursor-pointer">
+        </div>
+        <div class="flex items-center gap-1">
+          <span class="text-xs text-slate-400">速度:</span>
+          <select id="speedSelect" class="bg-slate-800 border border-slate-600 text-xs rounded px-2 py-1 text-white font-bold">
+            <option value="120">1x (じっくり)</option>
+            <option value="60" selected>2x (標準)</option>
+            <option value="25">5x (高速)</option>
+            <option value="10">10x (超高速)</option>
+          </select>
         </div>
       </div>
     </div>
 
-    <!-- 時代プリセットボタン -->
-    <div class="flex flex-wrap items-center gap-1.5 mb-4">
-      <span class="text-xs text-slate-400 mr-1">定番スタート時期:</span>
-      <button onclick="setPresetYear(1989)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">1989 バブル最高値</button>
-      <button onclick="setPresetYear(2000)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2000 ITバブル</button>
-      <button onclick="setPresetYear(2007)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2007 リーマン直前</button>
-      <button onclick="setPresetYear(2013)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2013 アベノミクス</button>
-      <button onclick="setPresetYear(2020)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2020 コロナショック</button>
-    </div>
-
-    <!-- 再生コントロール＆シークバー -->
-    <div class="flex flex-wrap items-center gap-3 bg-slate-900/90 p-3 rounded-xl">
-      <button id="playBtn" onclick="togglePlay()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-5 py-2 rounded-lg text-sm flex items-center gap-1.5 transition shadow">
-        <span id="playIcon">▶</span> <span id="playText">再生</span>
-      </button>
-      <button onclick="resetSim()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-3 py-2 rounded-lg text-xs transition">
-        ⏮ リセット
-      </button>
-
-      <div class="flex-1 min-w-[160px] flex items-center gap-2">
-        <input id="seekBar" type="range" min="0" max="100" value="0" class="w-full cursor-pointer">
+    <!-- 動画風メインシミュレーターボード -->
+    <div class="w-full sim-card p-4 md:p-7">
+      <div class="border-b border-slate-200 pb-3 mb-4">
+        <div class="flex flex-wrap items-center gap-2 mb-1.5">
+          <span id="badgeVs" class="bg-slate-900 text-amber-400 text-xs font-bold px-2.5 py-1 rounded">日経平均 vs S&P500</span>
+          <span id="modeBadge" class="bg-emerald-700 text-white text-xs font-bold px-2 py-0.5 rounded">一括投資</span>
+          <span id="subCondition" class="text-xs text-slate-500 font-medium">1989年12月末に一括投資・配当再投資・手数料考慮せず</span>
+        </div>
+        <h2 id="mainHeadline" class="text-lg md:text-2xl font-black text-slate-900 tracking-tight leading-snug">
+          1989年末に100万円買っていたら<br class="md:hidden">
+          <span id="headlineVs">日経平均 vs S&P500</span>、その後どうなった？
+        </h2>
       </div>
 
-      <div class="flex items-center gap-1">
-        <span class="text-xs text-slate-400">速度:</span>
-        <select id="speedSelect" class="bg-slate-800 border border-slate-600 text-xs rounded px-2 py-1 text-white font-bold">
-          <option value="120">1x (じっくり)</option>
-          <option value="60" selected>2x (標準)</option>
-          <option value="25">5x (高速)</option>
-          <option value="10">10x (超高速)</option>
-        </select>
+      <!-- 2銘柄スコアカード -->
+      <div class="grid grid-cols-2 gap-3 md:gap-5 mb-4">
+        <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 relative bg-white shadow-sm">
+          <div class="flex items-center justify-between mb-1">
+            <span id="cardNameA" class="bg-red-600 text-white font-bold text-xs md:text-sm px-2.5 py-0.5 rounded">日経平均</span>
+            <span id="cardMultA" class="text-red-600 font-black text-base md:text-xl">1.00倍</span>
+          </div>
+          <div class="text-[11px] text-slate-500 font-medium">累計元本 <span class="currentPrincipalLabel font-bold text-slate-700">100万円</span> の評価額</div>
+          <div id="cardValA" class="text-2xl md:text-4xl font-black text-slate-900 my-0.5 tracking-tight">100万円</div>
+          <div id="cardDiffA" class="text-xs font-bold bg-slate-100 text-slate-600 inline-block px-2 py-0.5 rounded w-full">
+            ±0万円 (±0.0%)
+          </div>
+        </div>
+
+        <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 relative bg-white shadow-sm">
+          <div class="flex items-center justify-between mb-1">
+            <span id="cardNameB" class="bg-blue-600 text-white font-bold text-xs md:text-sm px-2.5 py-0.5 rounded">S&P500</span>
+            <span id="cardMultB" class="text-blue-600 font-black text-base md:text-xl">1.00倍</span>
+          </div>
+          <div class="text-[11px] text-slate-500 font-medium">累計元本 <span class="currentPrincipalLabel font-bold text-slate-700">100万円</span> の評価額</div>
+          <div id="cardValB" class="text-2xl md:text-4xl font-black text-slate-900 my-0.5 tracking-tight">100万円</div>
+          <div id="cardDiffB" class="text-xs font-bold bg-slate-100 text-slate-600 inline-block px-2 py-0.5 rounded w-full">
+            ±0万円 (±0.0%)
+          </div>
+        </div>
+      </div>
+
+      <!-- チャート描画エリア -->
+      <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 mb-4 bg-white relative">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+          <div id="chartDateLabel" class="text-sm md:text-base font-bold text-slate-700">1989年12月</div>
+          <div class="text-xs text-slate-500 flex items-center gap-1.5">
+            <span class="inline-block w-4 border-t-2 border-dashed border-emerald-600"></span>
+            <span>元本ライン：累計<span class="currentPrincipalLabel font-bold text-emerald-700">100万円</span>（点線より下＝元本割れ）</span>
+          </div>
+        </div>
+        <div class="w-full h-[250px] md:h-[310px]">
+          <canvas id="simCanvas" class="w-full h-full"></canvas>
+        </div>
+      </div>
+
+      <!-- 下部3連ステータスボックス -->
+      <div class="grid grid-cols-3 gap-2.5 md:gap-4">
+        <div class="border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-amber-50/70">
+          <div class="text-[11px] text-slate-500 font-bold mb-0.5">経過（累計元本）</div>
+          <div id="elapsedLabel" class="text-xs md:text-base font-black text-slate-900">0年0か月 (100万円)</div>
+        </div>
+        <div id="statusBoxA" class="border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-emerald-50/70">
+          <div id="statusTitleA" class="text-[11px] text-slate-500 font-bold mb-0.5">日経平均の状態</div>
+          <div id="statusTextA" class="text-xs md:text-base font-black text-slate-900 truncate">運用スタート</div>
+        </div>
+        <div class="border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-slate-50">
+          <div class="text-[11px] text-slate-500 font-bold mb-0.5">その年の出来事</div>
+          <div id="eventLabel" class="text-xs md:text-base font-black text-slate-900 truncate">日経平均 史上最高値(38,915円)</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- 動画風メインシミュレーターボード -->
-  <div class="w-full max-w-4xl sim-card p-4 md:p-7">
+  <!-- ================================================================= -->
+  <!-- SECTION 2: 未来の目標・逆算シミュレーションモード（新規追加）      -->
+  <!-- ================================================================= -->
+  <div id="goalAppSection" class="w-full max-w-4xl hidden flex-col items-center">
     
-    <!-- 上部タイトルヘッダー -->
-    <div class="border-b border-slate-200 pb-3 mb-4">
-      <div class="flex flex-wrap items-center gap-2 mb-1.5">
-        <span id="badgeVs" class="bg-slate-900 text-amber-400 text-xs font-bold px-2.5 py-1 rounded">日経平均 vs S&P500</span>
-        <span id="modeBadge" class="bg-emerald-700 text-white text-xs font-bold px-2 py-0.5 rounded">一括投資</span>
-        <span id="subCondition" class="text-xs text-slate-500 font-medium">1989年12月末に一括投資・配当再投資・手数料考慮せず</span>
+    <!-- 設定パネル（ダーク） -->
+    <div class="w-full bg-slate-800 text-white rounded-2xl p-4 md:p-6 mb-5 shadow-lg border border-slate-700">
+      
+      <!-- 逆算サブモード切替 -->
+      <div class="mb-5">
+        <div class="text-xs text-slate-400 mb-1.5 font-bold">🔍 どちらをシミュレーションしますか？</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 bg-slate-900 p-1.5 rounded-xl border border-slate-700">
+          <button id="goalSubYearsBtn" onclick="setGoalSubMode('years')" class="py-2.5 px-3 rounded-lg font-black text-xs md:text-sm transition bg-blue-600 text-white shadow text-left flex items-center gap-2">
+            <span class="text-lg">⏳</span>
+            <div>
+              <div>① 目標額に到達する「年数」を知る</div>
+              <div class="text-[11px] font-normal opacity-80">毎月の積立額から、何年かかるかを逆算</div>
+            </div>
+          </button>
+          <button id="goalSubPmtBtn" onclick="setGoalSubMode('pmt')" class="py-2.5 px-3 rounded-lg font-bold text-xs md:text-sm transition text-slate-400 hover:text-white text-left flex items-center gap-2">
+            <span class="text-lg">💰</span>
+            <div>
+              <div>② 必要な「毎月の積立額」を知る</div>
+              <div class="text-[11px] font-normal opacity-80">目標額と期間(年)から、毎月いくら必要か逆算</div>
+            </div>
+          </button>
+        </div>
       </div>
-      <h2 id="mainHeadline" class="text-lg md:text-2xl font-black text-slate-900 tracking-tight leading-snug">
-        1989年末に100万円買っていたら<br class="md:hidden">
-        <span id="headlineVs">日経平均 vs S&P500</span>、その後どうなった？
-      </h2>
+
+      <!-- STEP 1: 銘柄選びと利回りカスタマイズ -->
+      <div class="bg-slate-900/90 border border-slate-700 rounded-xl p-4 mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+          <div>
+            <label class="block text-xs text-amber-400 font-bold mb-1">📊 ベースにする銘柄を選択</label>
+            <select id="goalAssetSelect" onchange="onGoalAssetChange()" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-amber-500"></select>
+            <div class="mt-2 flex items-center justify-between text-xs text-slate-400 bg-slate-800/80 px-3 py-1.5 rounded-lg">
+              <span>1989〜2026年の過去実績平均(年率):</span>
+              <span id="histCagrBadge" class="font-black text-amber-400 text-sm">11.1%</span>
+            </div>
+          </div>
+
+          <!-- 利回りスライダー＆調整 -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs text-emerald-400 font-bold">⚙️ シミュレーション想定利回り（年率）</label>
+              <div class="flex items-center gap-1">
+                <input id="goalCustomRate" type="number" step="0.1" min="0" max="30" value="11.1" oninput="syncRateFromInput()" class="w-16 bg-slate-800 border border-emerald-500 rounded px-2 py-0.5 text-right font-black text-base text-emerald-400 focus:outline-none">
+                <span class="text-xs font-bold text-emerald-400">%</span>
+              </div>
+            </div>
+            <input id="goalRateSlider" type="range" step="0.1" min="0.5" max="20" value="11.1" oninput="syncRateFromSlider()" class="w-full range-amber cursor-pointer my-1">
+            
+            <!-- ワンタップ利回りボタン -->
+            <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+              <span class="text-[11px] text-slate-400">ワンタップ切替:</span>
+              <button onclick="setCustomRate('hist')" class="text-[11px] bg-amber-500/20 border border-amber-500/50 text-amber-300 hover:bg-amber-500/30 px-2 py-0.5 rounded font-bold transition">過去平均に戻す</button>
+              <button onclick="setCustomRate(4.0)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded transition">保守的 4%</button>
+              <button onclick="setCustomRate(5.0)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded transition">手堅く 5%</button>
+              <button onclick="setCustomRate(7.0)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded transition">標準 7%</button>
+              <button onclick="setCustomRate(10.0)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded transition">積極 10%</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: 金額・期間の入力グリッド -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <!-- 目標額（共通） -->
+        <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-700">
+          <label class="block text-xs text-slate-300 font-bold mb-1">🎯 目標金額</label>
+          <div class="flex items-center bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 mb-2">
+            <input id="goalTargetMan" type="number" value="3000" min="10" max="100000" step="100" oninput="calcGoalSim()" class="w-full bg-transparent text-base font-black text-white focus:outline-none">
+            <span class="text-xs text-slate-400 ml-1">万円</span>
+          </div>
+          <div class="flex flex-wrap gap-1">
+            <button onclick="setGoalInput('goalTargetMan', 1000)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">1,000万</button>
+            <button onclick="setGoalInput('goalTargetMan', 2000)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">2,000万</button>
+            <button onclick="setGoalInput('goalTargetMan', 3000)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">3,000万</button>
+            <button onclick="setGoalInput('goalTargetMan', 5000)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">5,000万</button>
+            <button onclick="setGoalInput('goalTargetMan', 10000)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">1億円</button>
+          </div>
+        </div>
+
+        <!-- 初期投資額（共通） -->
+        <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-700">
+          <label class="block text-xs text-slate-300 font-bold mb-1">💎 初期投資額（元手）</label>
+          <div class="flex items-center bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 mb-2">
+            <input id="goalInitialMan" type="number" value="100" min="0" max="50000" step="10" oninput="calcGoalSim()" class="w-full bg-transparent text-base font-black text-white focus:outline-none">
+            <span class="text-xs text-slate-400 ml-1">万円</span>
+          </div>
+          <div class="flex flex-wrap gap-1">
+            <button onclick="setGoalInput('goalInitialMan', 0)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">0円</button>
+            <button onclick="setGoalInput('goalInitialMan', 50)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">50万</button>
+            <button onclick="setGoalInput('goalInitialMan', 100)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">100万</button>
+            <button onclick="setGoalInput('goalInitialMan', 300)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">300万</button>
+            <button onclick="setGoalInput('goalInitialMan', 500)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">500万</button>
+          </div>
+        </div>
+
+        <!-- モード①用：毎月積立額 ／ モード②用：積立期間(年) -->
+        <div id="goalMonthlyBox" class="bg-slate-900/70 p-3 rounded-xl border border-blue-500/60">
+          <label class="block text-xs text-blue-300 font-bold mb-1">📈 毎月の積立額</label>
+          <div class="flex items-center bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 mb-2">
+            <input id="goalMonthlyMan" type="number" value="5" min="0" max="1000" step="0.5" oninput="calcGoalSim()" class="w-full bg-transparent text-base font-black text-white focus:outline-none">
+            <span class="text-xs text-slate-400 ml-1">万円</span>
+          </div>
+          <div class="flex flex-wrap gap-1">
+            <button onclick="setGoalInput('goalMonthlyMan', 1)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">1万</button>
+            <button onclick="setGoalInput('goalMonthlyMan', 3)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">3万</button>
+            <button onclick="setGoalInput('goalMonthlyMan', 5)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">5万</button>
+            <button onclick="setGoalInput('goalMonthlyMan', 10)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">10万</button>
+            <button onclick="setGoalInput('goalMonthlyMan', 30)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">30万</button>
+          </div>
+        </div>
+
+        <div id="goalYearsBox" class="bg-slate-900/70 p-3 rounded-xl border border-blue-500/60 hidden">
+          <label class="block text-xs text-blue-300 font-bold mb-1">🗓️ 目標までの積立期間</label>
+          <div class="flex items-center bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 mb-2">
+            <input id="goalTargetYears" type="number" value="20" min="1" max="60" step="1" oninput="calcGoalSim()" class="w-full bg-transparent text-base font-black text-white focus:outline-none">
+            <span class="text-xs text-slate-400 ml-1">年間</span>
+          </div>
+          <div class="flex flex-wrap gap-1">
+            <button onclick="setGoalInput('goalTargetYears', 5)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">5年</button>
+            <button onclick="setGoalInput('goalTargetYears', 10)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">10年</button>
+            <button onclick="setGoalInput('goalTargetYears', 15)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">15年</button>
+            <button onclick="setGoalInput('goalTargetYears', 20)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">20年</button>
+            <button onclick="setGoalInput('goalTargetYears', 30)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">30年</button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- 2銘柄スコアカード -->
-    <div class="grid grid-cols-2 gap-3 md:gap-5 mb-4">
-      <!-- 銘柄A（赤） -->
-      <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 relative bg-white shadow-sm">
-        <div class="flex items-center justify-between mb-1">
-          <span id="cardNameA" class="bg-red-600 text-white font-bold text-xs md:text-sm px-2.5 py-0.5 rounded">日経平均</span>
-          <span id="cardMultA" class="text-red-600 font-black text-base md:text-xl">1.00倍</span>
+    <!-- 逆算結果ボード（ホワイトカード） -->
+    <div class="w-full sim-card p-4 md:p-7">
+      
+      <!-- 結果メインバナー -->
+      <div class="border-[2.5px] border-slate-800 rounded-2xl p-4 md:p-6 mb-5 bg-gradient-to-br from-slate-50 to-blue-50/40 relative">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <div class="flex items-center gap-2">
+            <span id="goalResultAssetBadge" class="bg-slate-900 text-amber-400 text-xs font-bold px-2.5 py-1 rounded">S&P500</span>
+            <span id="goalResultRateBadge" class="bg-emerald-600 text-white text-xs font-bold px-2.5 py-1 rounded">想定利回り 年率 11.1%</span>
+          </div>
+          <div id="goalCompareNotice" class="text-xs font-bold text-slate-500"></div>
         </div>
-        <div class="text-[11px] text-slate-500 font-medium">累計元本 <span class="currentPrincipalLabel font-bold text-slate-700">100万円</span> の評価額</div>
-        <div id="cardValA" class="text-2xl md:text-4xl font-black text-slate-900 my-0.5 tracking-tight">100万円</div>
-        <div id="cardDiffA" class="text-xs font-bold bg-slate-100 text-slate-600 inline-block px-2 py-0.5 rounded w-full">
-          ±0万円 (±0.0%)
+
+        <div id="goalMainAnswerLabel" class="text-xs md:text-sm font-bold text-slate-600 mb-1">
+          目標 3,000万円 に到達するまでの期間は…
+        </div>
+        <div id="goalMainAnswerValue" class="text-3xl md:text-5xl font-black text-blue-700 tracking-tight my-1">
+          14年 2か月
+        </div>
+        <div id="goalSubAnswerText" class="text-xs md:text-sm font-bold text-slate-700 mt-2 bg-white/90 border border-slate-200 rounded-lg px-3 py-2 inline-block">
+          元本合計 950万円 ／ 運用益 +2,050万円
         </div>
       </div>
 
-      <!-- 銘柄B（青） -->
-      <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 relative bg-white shadow-sm">
-        <div class="flex items-center justify-between mb-1">
-          <span id="cardNameB" class="bg-blue-600 text-white font-bold text-xs md:text-sm px-2.5 py-0.5 rounded">S&P500</span>
-          <span id="cardMultB" class="text-blue-600 font-black text-base md:text-xl">1.00倍</span>
+      <!-- 3連内訳カード -->
+      <div class="grid grid-cols-3 gap-2.5 md:gap-4 mb-5">
+        <div class="border-[2px] border-slate-800 rounded-xl p-3 bg-white">
+          <div class="text-[11px] text-slate-500 font-bold mb-0.5">投資元本の合計</div>
+          <div id="goalCardPrincipal" class="text-base md:text-2xl font-black text-slate-800">950万円</div>
+          <div id="goalCardPrincipalSub" class="text-[11px] text-slate-500 mt-0.5">初期100万 + 積立850万</div>
         </div>
-        <div class="text-[11px] text-slate-500 font-medium">累計元本 <span class="currentPrincipalLabel font-bold text-slate-700">100万円</span> の評価額</div>
-        <div id="cardValB" class="text-2xl md:text-4xl font-black text-slate-900 my-0.5 tracking-tight">100万円</div>
-        <div id="cardDiffB" class="text-xs font-bold bg-slate-100 text-slate-600 inline-block px-2 py-0.5 rounded w-full">
-          ±0万円 (±0.0%)
+        <div class="border-[2px] border-slate-800 rounded-xl p-3 bg-white">
+          <div class="text-[11px] text-slate-500 font-bold mb-0.5">複利で増えた運用益</div>
+          <div id="goalCardProfit" class="text-base md:text-2xl font-black text-emerald-600">+2,055万円</div>
+          <div id="goalCardProfitSub" class="text-[11px] text-slate-500 mt-0.5">元本対比 +216%</div>
         </div>
-      </div>
-    </div>
-
-    <!-- チャート描画エリア -->
-    <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 mb-4 bg-white relative">
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
-        <div id="chartDateLabel" class="text-sm md:text-base font-bold text-slate-700">1989年12月</div>
-        <div class="text-xs text-slate-500 flex items-center gap-1.5">
-          <span class="inline-block w-4 border-t-2 border-dashed border-emerald-600"></span>
-          <span>元本ライン：累計<span class="currentPrincipalLabel font-bold text-emerald-700">100万円</span>（点線より下＝元本割れ）</span>
+        <div class="border-[2px] border-slate-800 rounded-xl p-3 bg-amber-50/60">
+          <div id="goalCardCompareTitle" class="text-[11px] text-slate-600 font-bold mb-0.5">もし過去平均(11.1%)なら</div>
+          <div id="goalCardCompareVal" class="text-base md:text-2xl font-black text-amber-600">14年2か月</div>
+          <div id="goalCardCompareSub" class="text-[11px] text-slate-500 mt-0.5">利回り差の比較</div>
         </div>
       </div>
-      <div class="w-full h-[250px] md:h-[310px]">
-        <canvas id="simCanvas" class="w-full h-full"></canvas>
-      </div>
-    </div>
 
-    <!-- 下部3連ステータスボックス -->
-    <div class="grid grid-cols-3 gap-2.5 md:gap-4">
-      <div class="border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-amber-50/70">
-        <div class="text-[11px] text-slate-500 font-bold mb-0.5">経過（累計元本）</div>
-        <div id="elapsedLabel" class="text-xs md:text-base font-black text-slate-900">0年0か月 (100万円)</div>
+      <!-- 資産推移チャート（設定利回り vs 過去平均利回り vs 元本） -->
+      <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 bg-white">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <div class="text-sm md:text-base font-bold text-slate-800">📈 目標到達までの資産推移シミュレーション</div>
+          <div class="flex flex-wrap items-center gap-3 text-xs font-bold">
+            <span class="flex items-center gap-1 text-blue-600"><span class="inline-block w-3 h-3 rounded-full bg-blue-600"></span> 想定利回り</span>
+            <span class="flex items-center gap-1 text-amber-500"><span class="inline-block w-4 border-t-2 border-dashed border-amber-500"></span> 銘柄の過去平均利回り</span>
+            <span class="flex items-center gap-1 text-emerald-700"><span class="inline-block w-3 h-3 bg-emerald-600/30 border border-emerald-600"></span> 累計元本</span>
+          </div>
+        </div>
+        <div class="w-full h-[260px] md:h-[320px]">
+          <canvas id="goalCanvas" class="w-full h-full"></canvas>
+        </div>
       </div>
-      <div id="statusBoxA" class="border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-emerald-50/70">
-        <div id="statusTitleA" class="text-[11px] text-slate-500 font-bold mb-0.5">日経平均の状態</div>
-        <div id="statusTextA" class="text-xs md:text-base font-black text-slate-900 truncate">運用スタート</div>
-      </div>
-      <div class="border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-slate-50">
-        <div class="text-[11px] text-slate-500 font-bold mb-0.5">その年の出来事</div>
-        <div id="eventLabel" class="text-xs md:text-base font-black text-slate-900 truncate">日経平均 史上最高値(38,915円)</div>
-      </div>
-    </div>
 
-    <div class="mt-3 text-[11px] text-slate-400 leading-relaxed">
-      ※各年末の主要インデックス推移（円換算ベース）から月次推移を補間したシミュレーションです。積立モードでは毎月定額で各資産の口数を買い増すドルコスト平均法で計算しています。
+      <div class="mt-3 text-[11px] text-slate-400 leading-relaxed">
+        ※月次複利で計算しています。過去の平均利回り（CAGR）は1989年末〜2026年の円換算指数データから算出した実績値であり、将来の利回りを保証するものではありません。スライダーで4%〜5%などの堅実な利回りに切り替えて比較してみてください。
+      </div>
     </div>
   </div>
 
 <script>
 // ==========================================
-// フォーマット関数（億・万 対応）
+// 共通フォーマット関数（億・万 対応）
 // ==========================================
 function formatMoney(valMan, isDiff = false) {
   const absVal = Math.round(Math.abs(valMan));
   if (absVal === 0) return isDiff ? '±0万円' : '0万円';
-  
   const sign = valMan < 0 ? '-' : (isDiff ? '+' : '');
-  
   if (absVal >= 10000) {
     const oku = Math.floor(absVal / 10000);
     const man = absVal % 10000;
-    if (man === 0) {
-      return `${sign}${oku.toLocaleString()}億円`;
-    } else {
-      return `${sign}${oku.toLocaleString()}億${man.toLocaleString()}万円`;
-    }
-  } else {
-    return `${sign}${absVal.toLocaleString()}万円`;
+    return man === 0 ? `${sign}${oku.toLocaleString()}億円` : `${sign}${oku.toLocaleString()}億${man.toLocaleString()}万円`;
   }
+  return `${sign}${absVal.toLocaleString()}万円`;
+}
+
+// 少額の毎月積立額用（例: 3.45万円 → 3万4,500円）
+function formatDetailedMonthly(valMan) {
+  if (valMan <= 0) return "0円（初期投資のみで達成可能！）";
+  const totalYen = Math.round(valMan * 10000);
+  if (totalYen >= 100000000) {
+    return formatMoney(valMan);
+  }
+  const man = Math.floor(totalYen / 10000);
+  const yen = Math.round((totalYen % 10000) / 100) * 100; // 100円単位丸め
+  if (man === 0) return `${yen.toLocaleString()}円`;
+  if (yen === 0) return `${man.toLocaleString()}万円`;
+  return `${man.toLocaleString()}万${yen.toLocaleString()}円`;
 }
 
 function formatDiff(val, principal) {
@@ -220,20 +429,12 @@ function formatDiff(val, principal) {
 }
 
 // ==========================================
-// 1. ヒストリカル年次データ
+// 1. ヒストリカル年次データ（1989-2026: 37年間）
 // ==========================================
 const YEARS = [];
 for (let y = 1989; y <= 2026; y++) YEARS.push(y);
 
 const ASSET_DATA = {
-  nikkei: {
-    name: "日経平均", fullName: "日経平均株価",
-    values: [100,62,59,44,45,51,51,50,39,36,49,36,28,23,29,31,44,48,43,25,30,29,25,31,49,53,59,60,73,65,78,92,98,91,120,146,158,166]
-  },
-  topix: {
-    name: "TOPIX", fullName: "東証株価指数(TOPIX)",
-    values: [100,61,60,46,51,55,56,53,43,40,60,46,37,31,39,43,63,65,58,34,37,38,32,39,61,68,76,78,96,82,97,110,124,123,160,195,212,225]
-  },
   sp500: {
     name: "S&P500", fullName: "米国株式(S&P500・円換算)",
     values: [100,91,110,118,117,108,154,214,320,365,395,398,405,290,335,355,425,495,490,255,330,332,322,420,685,905,930,1015,1190,1110,1440,1610,2310,2150,2920,4100,4650,4980]
@@ -250,6 +451,14 @@ const ASSET_DATA = {
     name: "全米株式(VTI)", fullName: "全米株式(CRSP USトータル)",
     values: [100,89,112,122,121,110,156,215,318,355,390,392,402,292,345,370,448,522,515,268,352,362,348,452,740,970,990,1095,1280,1190,1540,1750,2480,2280,3090,4310,4880,5220]
   },
+  nikkei: {
+    name: "日経平均", fullName: "日経平均株価",
+    values: [100,62,59,44,45,51,51,50,39,36,49,36,28,23,29,31,44,48,43,25,30,29,25,31,49,53,59,60,73,65,78,92,98,91,120,146,158,166]
+  },
+  topix: {
+    name: "TOPIX", fullName: "東証株価指数(TOPIX)",
+    values: [100,61,60,46,51,55,56,53,43,40,60,46,37,31,39,43,63,65,58,34,37,38,32,39,61,68,76,78,96,82,97,110,124,123,160,195,212,225]
+  },
   india: {
     name: "インド株", fullName: "インド株インデックス(Nifty50・円換算)",
     values: [100,115,140,185,210,230,185,195,235,190,290,250,235,225,370,430,650,960,1480,580,1080,1180,810,1120,1350,1980,1920,1950,2550,2480,2720,2950,4100,4450,5700,7400,8300,9100]
@@ -259,6 +468,14 @@ const ASSET_DATA = {
     values: [100,91,79,73,76,68,72,81,69,59,53,56,66,73,79,82,108,135,165,140,180,205,215,250,225,255,235,248,275,265,310,365,395,455,550,780,960,1080]
   }
 };
+
+// 各銘柄の過去平均年利（CAGR）を算出して保持
+Object.keys(ASSET_DATA).forEach(k => {
+  const vals = ASSET_DATA[k].values;
+  const nYears = vals.length - 1; // 37年
+  const cagr = (Math.pow(vals[vals.length - 1] / vals[0], 1 / nYears) - 1) * 100;
+  ASSET_DATA[k].cagr = Math.round(cagr * 10) / 10;
+});
 
 const HISTORICAL_EVENTS = {
   1989: "日経平均 史上最高値(38,915円)", 1990: "バブル崩壊始まる", 1991: "ジュリアナ東京オープン",
@@ -275,9 +492,383 @@ const HISTORICAL_EVENTS = {
 };
 
 // ==========================================
-// 2. 状態管理変数
+// 2. メインアプリの切り替え制御
 // ==========================================
-let investMode = 'lump'; // 'lump' (一括) or 'dca' (毎月積立)
+let currentMainApp = 'hist'; // 'hist' or 'goal'
+let goalSubMode = 'years';   // 'years' (年数逆算) or 'pmt' (積立額逆算)
+
+function switchMainApp(app) {
+  currentMainApp = app;
+  const tabHist = document.getElementById('mainTabHist');
+  const tabGoal = document.getElementById('mainTabGoal');
+  const secHist = document.getElementById('histAppSection');
+  const secGoal = document.getElementById('goalAppSection');
+
+  if (app === 'hist') {
+    tabHist.className = 'py-2.5 px-3 rounded-xl font-black text-xs md:text-sm transition flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 shadow';
+    tabGoal.className = 'py-2.5 px-3 rounded-xl font-bold text-xs md:text-sm transition flex items-center justify-center gap-1.5 text-slate-300 hover:text-white';
+    secHist.classList.remove('hidden');
+    secHist.classList.add('flex');
+    secGoal.classList.add('hidden');
+    secGoal.classList.remove('flex');
+    renderFrame();
+  } else {
+    stopPlay();
+    tabGoal.className = 'py-2.5 px-3 rounded-xl font-black text-xs md:text-sm transition flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 shadow';
+    tabHist.className = 'py-2.5 px-3 rounded-xl font-bold text-xs md:text-sm transition flex items-center justify-center gap-1.5 text-slate-300 hover:text-white';
+    secGoal.classList.remove('hidden');
+    secGoal.classList.add('flex');
+    secHist.classList.add('hidden');
+    secHist.classList.remove('flex');
+    calcGoalSim();
+  }
+}
+
+// ==========================================
+// 3. 未来の目標・逆算シミュレーション処理
+// ==========================================
+function setGoalSubMode(sub) {
+  goalSubMode = sub;
+  const btnYears = document.getElementById('goalSubYearsBtn');
+  const btnPmt = document.getElementById('goalSubPmtBtn');
+  const boxMonthly = document.getElementById('goalMonthlyBox');
+  const boxYears = document.getElementById('goalYearsBox');
+
+  if (sub === 'years') {
+    btnYears.className = 'py-2.5 px-3 rounded-lg font-black text-xs md:text-sm transition bg-blue-600 text-white shadow text-left flex items-center gap-2';
+    btnPmt.className = 'py-2.5 px-3 rounded-lg font-bold text-xs md:text-sm transition text-slate-400 hover:text-white text-left flex items-center gap-2';
+    boxMonthly.classList.remove('hidden');
+    boxYears.classList.add('hidden');
+  } else {
+    btnPmt.className = 'py-2.5 px-3 rounded-lg font-black text-xs md:text-sm transition bg-blue-600 text-white shadow text-left flex items-center gap-2';
+    btnYears.className = 'py-2.5 px-3 rounded-lg font-bold text-xs md:text-sm transition text-slate-400 hover:text-white text-left flex items-center gap-2';
+    boxYears.classList.remove('hidden');
+    boxMonthly.classList.add('hidden');
+  }
+  calcGoalSim();
+}
+
+function onGoalAssetChange() {
+  const key = document.getElementById('goalAssetSelect').value;
+  const cagr = ASSET_DATA[key].cagr;
+  document.getElementById('histCagrBadge').textContent = `${cagr.toFixed(1)}%`;
+  document.getElementById('goalCustomRate').value = cagr;
+  document.getElementById('goalRateSlider').value = Math.min(20, Math.max(0.5, cagr));
+  calcGoalSim();
+}
+
+function syncRateFromInput() {
+  const val = parseFloat(document.getElementById('goalCustomRate').value) || 0;
+  document.getElementById('goalRateSlider').value = Math.min(20, Math.max(0.5, val));
+  calcGoalSim();
+}
+
+function syncRateFromSlider() {
+  const val = parseFloat(document.getElementById('goalRateSlider').value) || 0;
+  document.getElementById('goalCustomRate').value = val.toFixed(1);
+  calcGoalSim();
+}
+
+function setCustomRate(rate) {
+  const key = document.getElementById('goalAssetSelect').value;
+  const targetRate = (rate === 'hist') ? ASSET_DATA[key].cagr : rate;
+  document.getElementById('goalCustomRate').value = targetRate.toFixed(1);
+  document.getElementById('goalRateSlider').value = Math.min(20, Math.max(0.5, targetRate));
+  calcGoalSim();
+}
+
+function setGoalInput(id, val) {
+  document.getElementById(id).value = val;
+  calcGoalSim();
+}
+
+// 目標額と毎月積立額から「何ヶ月かかるか」を計算
+function computeMonthsToTarget(targetMan, initMan, monthlyMan, annualRatePct) {
+  if (initMan >= targetMan) return 0;
+  if (monthlyMan <= 0 && annualRatePct <= 0) return Infinity;
+  const r = (annualRatePct / 100) / 12;
+  let bal = initMan;
+  for (let m = 1; m <= 1200; m++) { // 最大100年
+    bal = bal * (1 + r) + monthlyMan;
+    if (bal >= targetMan) return m;
+  }
+  return Infinity;
+}
+
+// 目標額と期間(年)から「毎月いくら積立が必要か」を計算
+function computeRequiredMonthly(targetMan, initMan, years, annualRatePct) {
+  const months = Math.max(1, Math.round(years * 12));
+  const r = (annualRatePct / 100) / 12;
+  if (r === 0) {
+    return Math.max(0, (targetMan - initMan) / months);
+  }
+  const compoundFactor = Math.pow(1 + r, months);
+  const futureInit = initMan * compoundFactor;
+  if (futureInit >= targetMan) return 0;
+  return (targetMan - futureInit) * r / (compoundFactor - 1);
+}
+
+function formatMonthsToYearMonth(months) {
+  if (!isFinite(months)) return "100年以上";
+  if (months === 0) return "0か月（達成済）";
+  const y = Math.floor(months / 12);
+  const m = months % 12;
+  if (y === 0) return `${m}か月`;
+  if (m === 0) return `${y}年`;
+  return `${y}年 ${m}か月`;
+}
+
+function calcGoalSim() {
+  const key = document.getElementById('goalAssetSelect').value;
+  const asset = ASSET_DATA[key];
+  const histRate = asset.cagr;
+  const customRate = Math.max(0, parseFloat(document.getElementById('goalCustomRate').value) || 0);
+
+  const targetMan = Math.max(1, parseFloat(document.getElementById('goalTargetMan').value) || 3000);
+  const initMan = Math.max(0, parseFloat(document.getElementById('goalInitialMan').value) || 0);
+
+  document.getElementById('goalResultAssetBadge').textContent = asset.name;
+  document.getElementById('goalResultRateBadge').textContent = `想定利回り 年率 ${customRate.toFixed(1)}%`;
+
+  let simMonths = 0;
+  let simMonthlyMan = 0;
+
+  if (goalSubMode === 'years') {
+    // ① 到達年数を逆算モード
+    simMonthlyMan = Math.max(0, parseFloat(document.getElementById('goalMonthlyMan').value) || 0);
+    const monthsCustom = computeMonthsToTarget(targetMan, initMan, simMonthlyMan, customRate);
+    const monthsHist = computeMonthsToTarget(targetMan, initMan, simMonthlyMan, histRate);
+
+    simMonths = isFinite(monthsCustom) ? Math.max(12, monthsCustom) : 360;
+
+    document.getElementById('goalMainAnswerLabel').textContent =
+      `初期 ${formatMoney(initMan)} ＋ 毎月 ${formatDetailedMonthly(simMonthlyMan)} で 目標 ${formatMoney(targetMan)} に到達するまで…`;
+    document.getElementById('goalMainAnswerValue').textContent = formatMonthsToYearMonth(monthsCustom);
+
+    const totalPrincipal = initMan + simMonthlyMan * (isFinite(monthsCustom) ? monthsCustom : 0);
+    const totalProfit = Math.max(0, targetMan - totalPrincipal);
+
+    if (isFinite(monthsCustom)) {
+      document.getElementById('goalSubAnswerText').textContent =
+        `元本合計 ${formatMoney(totalPrincipal)} ／ 複利運用益 +${formatMoney(totalProfit)}`;
+      document.getElementById('goalCardPrincipal').textContent = formatMoney(totalPrincipal);
+      document.getElementById('goalCardPrincipalSub').textContent = `初期${formatMoney(initMan)} + 積立${formatMoney(simMonthlyMan * monthsCustom)}`;
+      document.getElementById('goalCardProfit').textContent = `+${formatMoney(totalProfit)}`;
+      const pct = totalPrincipal > 0 ? Math.round((totalProfit / totalPrincipal) * 100) : 0;
+      document.getElementById('goalCardProfitSub').textContent = `元本対比 +${pct}%`;
+    } else {
+      document.getElementById('goalSubAnswerText').textContent = `100年以内に到達できません。積立額や利回りを増やしてみてください。`;
+      document.getElementById('goalCardPrincipal').textContent = "-";
+      document.getElementById('goalCardProfit').textContent = "-";
+    }
+
+    document.getElementById('goalCardCompareTitle').textContent = `過去平均(${histRate.toFixed(1)}%)なら`;
+    document.getElementById('goalCardCompareVal').textContent = formatMonthsToYearMonth(monthsHist);
+    if (isFinite(monthsCustom) && isFinite(monthsHist)) {
+      const diffM = monthsCustom - monthsHist;
+      document.getElementById('goalCardCompareSub').textContent =
+        diffM === 0 ? `過去平均と同じペース` : (diffM > 0 ? `過去平均より +${formatMonthsToYearMonth(diffM)} かかる` : `過去平均より ${formatMonthsToYearMonth(-diffM)} 早い`);
+    } else {
+      document.getElementById('goalCardCompareSub').textContent = `利回りによる期間差`;
+    }
+
+  } else {
+    // ② 毎月の必要積立額を逆算モード
+    const targetYears = Math.max(1, parseFloat(document.getElementById('goalTargetYears').value) || 20);
+    simMonths = Math.round(targetYears * 12);
+
+    const reqMonthlyCustom = computeRequiredMonthly(targetMan, initMan, targetYears, customRate);
+    const reqMonthlyHist = computeRequiredMonthly(targetMan, initMan, targetYears, histRate);
+    simMonthlyMan = reqMonthlyCustom;
+
+    document.getElementById('goalMainAnswerLabel').textContent =
+      `初期 ${formatMoney(initMan)} で ${targetYears}年後 に 目標 ${formatMoney(targetMan)} に到達するには…`;
+    document.getElementById('goalMainAnswerValue').textContent = `毎月 ${formatDetailedMonthly(reqMonthlyCustom)}`;
+
+    const totalPrincipal = initMan + reqMonthlyCustom * simMonths;
+    const totalProfit = Math.max(0, targetMan - totalPrincipal);
+
+    document.getElementById('goalSubAnswerText').textContent =
+      `${targetYears}年間の元本合計 ${formatMoney(totalPrincipal)} ／ 複利運用益 +${formatMoney(totalProfit)}`;
+
+    document.getElementById('goalCardPrincipal').textContent = formatMoney(totalPrincipal);
+    document.getElementById('goalCardPrincipalSub').textContent = `初期${formatMoney(initMan)} + 積立${formatMoney(reqMonthlyCustom * simMonths)}`;
+    document.getElementById('goalCardProfit').textContent = `+${formatMoney(totalProfit)}`;
+    const pct = totalPrincipal > 0 ? Math.round((totalProfit / totalPrincipal) * 100) : 0;
+    document.getElementById('goalCardProfitSub').textContent = `元本対比 +${pct}%`;
+
+    document.getElementById('goalCardCompareTitle').textContent = `過去平均(${histRate.toFixed(1)}%)なら`;
+    document.getElementById('goalCardCompareVal').textContent = `月 ${formatDetailedMonthly(reqMonthlyHist)}`;
+    const diffMan = reqMonthlyCustom - reqMonthlyHist;
+    document.getElementById('goalCardCompareSub').textContent =
+      Math.abs(diffMan) < 0.01 ? `過去平均と同額` : (diffMan > 0 ? `過去平均より 月+${formatDetailedMonthly(diffMan)} 必要` : `過去平均より 月-${formatDetailedMonthly(-diffMan)} 少なくてOK`);
+  }
+
+  drawGoalChart(targetMan, initMan, simMonthlyMan, simMonths, customRate, histRate);
+}
+
+function drawGoalChart(targetMan, initMan, monthlyMan, totalMonths, customRate, histRate) {
+  const gCanvas = document.getElementById('goalCanvas');
+  if (!gCanvas) return;
+  const gCtx = gCanvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = gCanvas.getBoundingClientRect();
+  if (rect.width === 0) return;
+
+  gCanvas.width = rect.width * dpr;
+  gCanvas.height = rect.height * dpr;
+  gCtx.scale(dpr, dpr);
+
+  const W = rect.width;
+  const H = rect.height;
+  gCtx.clearRect(0, 0, W, H);
+
+  const padL = 68;
+  const padR = 28;
+  const padT = 24;
+  const padB = 30;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+
+  const rCustom = (customRate / 100) / 12;
+  const rHist = (histRate / 100) / 12;
+
+  const seriesCustom = [];
+  const seriesHist = [];
+  const seriesPrincipal = [];
+
+  let balCustom = initMan;
+  let balHist = initMan;
+  let balPrin = initMan;
+
+  for (let m = 0; m <= totalMonths; m++) {
+    if (m > 0) {
+      balCustom = balCustom * (1 + rCustom) + monthlyMan;
+      balHist = balHist * (1 + rHist) + monthlyMan;
+      balPrin += monthlyMan;
+    }
+    seriesCustom.push(balCustom);
+    seriesHist.push(balHist);
+    seriesPrincipal.push(balPrin);
+  }
+
+  let maxVal = Math.max(targetMan * 1.15, seriesCustom[seriesCustom.length - 1] * 1.1);
+  if (Math.abs(customRate - histRate) > 0.05) {
+    // 過去平均が極端に大きくなりすぎてメイン線が見えなくならないよう上限キャップ
+    maxVal = Math.max(maxVal, Math.min(targetMan * 2.2, seriesHist[seriesHist.length - 1] * 1.05));
+  }
+
+  const getX = (m) => padL + (m / Math.max(1, totalMonths)) * plotW;
+  const getY = (v) => padT + plotH - (Math.min(v, maxVal * 1.05) / maxVal) * plotH;
+
+  // 横グリッド線
+  gCtx.strokeStyle = '#e2e8f0';
+  gCtx.lineWidth = 1;
+  gCtx.fillStyle = '#64748b';
+  gCtx.font = '10.5px "Noto Sans JP", sans-serif';
+  gCtx.textAlign = 'right';
+
+  const steps = 4;
+  for (let s = 0; s <= steps; s++) {
+    const v = (maxVal / steps) * s;
+    const y = getY(v);
+    gCtx.beginPath();
+    gCtx.moveTo(padL, y);
+    gCtx.lineTo(W - padR, y);
+    gCtx.stroke();
+    gCtx.fillText(formatMoney(v), padL - 6, y + 4);
+  }
+
+  // 元本エリア塗りつぶし
+  gCtx.fillStyle = 'rgba(16, 185, 129, 0.14)';
+  gCtx.beginPath();
+  gCtx.moveTo(getX(0), padT + plotH);
+  for (let m = 0; m <= totalMonths; m++) {
+    gCtx.lineTo(getX(m), getY(seriesPrincipal[m]));
+  }
+  gCtx.lineTo(getX(totalMonths), padT + plotH);
+  gCtx.closePath();
+  gCtx.fill();
+
+  // 元本ライン
+  gCtx.strokeStyle = '#059669';
+  gCtx.lineWidth = 2;
+  gCtx.beginPath();
+  for (let m = 0; m <= totalMonths; m++) {
+    if (m === 0) gCtx.moveTo(getX(m), getY(seriesPrincipal[m]));
+    else gCtx.lineTo(getX(m), getY(seriesPrincipal[m]));
+  }
+  gCtx.stroke();
+
+  // 目標額の水平破線
+  const targetY = getY(targetMan);
+  gCtx.save();
+  gCtx.strokeStyle = '#dc2626';
+  gCtx.lineWidth = 1.5;
+  gCtx.setLineDash([4, 4]);
+  gCtx.beginPath();
+  gCtx.moveTo(padL, targetY);
+  gCtx.lineTo(W - padR, targetY);
+  gCtx.stroke();
+  gCtx.fillStyle = '#dc2626';
+  gCtx.font = 'bold 11px "Noto Sans JP", sans-serif';
+  gCtx.textAlign = 'left';
+  gCtx.fillText(`🎯 目標: ${formatMoney(targetMan)}`, padL + 6, Math.max(padT + 12, targetY - 5));
+  gCtx.restore();
+
+  // 過去平均利回りライン（オレンジ破線）
+  gCtx.save();
+  gCtx.strokeStyle = '#f59e0b';
+  gCtx.lineWidth = 2.2;
+  gCtx.setLineDash([5, 5]);
+  gCtx.beginPath();
+  for (let m = 0; m <= totalMonths; m++) {
+    const x = getX(m);
+    const y = getY(seriesHist[m]);
+    if (m === 0) gCtx.moveTo(x, y);
+    else gCtx.lineTo(x, y);
+  }
+  gCtx.stroke();
+  gCtx.restore();
+
+  // 想定利回りメインライン（青実線）
+  gCtx.strokeStyle = '#2563eb';
+  gCtx.lineWidth = 3;
+  gCtx.beginPath();
+  for (let m = 0; m <= totalMonths; m++) {
+    const x = getX(m);
+    const y = getY(seriesCustom[m]);
+    if (m === 0) gCtx.moveTo(x, y);
+    else gCtx.lineTo(x, y);
+  }
+  gCtx.stroke();
+
+  // 終点ドット
+  const endX = getX(totalMonths);
+  const endY = getY(seriesCustom[totalMonths]);
+  gCtx.fillStyle = '#2563eb';
+  gCtx.beginPath();
+  gCtx.arc(endX, endY, 5, 0, Math.PI * 2);
+  gCtx.fill();
+
+  // X軸（経過年ラベル）
+  gCtx.fillStyle = '#64748b';
+  gCtx.textAlign = 'center';
+  gCtx.font = '11px "Noto Sans JP", sans-serif';
+  const totalYrs = Math.ceil(totalMonths / 12);
+  const yrStep = totalYrs <= 10 ? 1 : totalYrs <= 25 ? 5 : 10;
+  for (let y = 0; y <= totalYrs; y += yrStep) {
+    const m = y * 12;
+    if (m <= totalMonths) {
+      gCtx.fillText(`${y}年後`, getX(m), H - 8);
+    }
+  }
+}
+
+// ==========================================
+// 4. 過去比較シミュレーター側の処理（v3継承）
+// ==========================================
+let investMode = 'lump';
 let timeline = [];
 let currentIndex = 0;
 let timerId = null;
@@ -292,16 +883,17 @@ const speedSelect = document.getElementById('speedSelect');
 const canvas = document.getElementById('simCanvas');
 const ctx = canvas.getContext('2d');
 
-// ==========================================
-// 3. 初期化＆モード切替処理
-// ==========================================
 function init() {
+  const goalAssetSelect = document.getElementById('goalAssetSelect');
+
   Object.keys(ASSET_DATA).forEach(key => {
     assetASelect.add(new Option(ASSET_DATA[key].fullName, key));
     assetBSelect.add(new Option(ASSET_DATA[key].fullName, key));
+    goalAssetSelect.add(new Option(`${ASSET_DATA[key].fullName} [過去平均: 年${ASSET_DATA[key].cagr.toFixed(1)}%]`, key));
   });
   assetASelect.value = 'nikkei';
   assetBSelect.value = 'sp500';
+  goalAssetSelect.value = 'sp500';
 
   for (let y = 1989; y <= 2024; y++) {
     const label = HISTORICAL_EVENTS[y] ? `${y}年12月 (${HISTORICAL_EVENTS[y].slice(0, 12)}...)` : `${y}年12月`;
@@ -331,11 +923,15 @@ function init() {
     }
   });
 
-  window.addEventListener('resize', () => renderFrame());
+  window.addEventListener('resize', () => {
+    if (currentMainApp === 'hist') renderFrame();
+    else calcGoalSim();
+  });
 
   renderAmountPresets();
   buildTimeline();
   renderFrame();
+  onGoalAssetChange();
 }
 
 function setInvestMode(mode) {
@@ -407,9 +1003,6 @@ function setPresetYear(year) {
   renderFrame();
 }
 
-// ==========================================
-// 4. 月次データの補間生成
-// ==========================================
 function seededNoise(seed) {
   const x = Math.sin(seed * 9999.123) * 10000;
   return x - Math.floor(x);
@@ -485,7 +1078,6 @@ function buildTimeline() {
 
   seekBar.max = timeline.length - 1;
 
-  // ヘッダーテキスト更新
   const nameA = ASSET_DATA[keyA].name;
   const nameB = ASSET_DATA[keyB].name;
   document.getElementById('badgeVs').textContent = `${nameA} vs ${nameB}`;
@@ -512,9 +1104,6 @@ function buildTimeline() {
   document.getElementById('statusTitleA').textContent = `${nameA}の状態`;
 }
 
-// ==========================================
-// 5. 描画＆UI更新
-// ==========================================
 function renderFrame() {
   if (!timeline.length) return;
   const pt = timeline[currentIndex];
@@ -522,12 +1111,10 @@ function renderFrame() {
   const keyB = assetBSelect.value;
   const principal = pt.principal;
 
-  // 累計元本ラベルの更新（億・万対応）
   document.querySelectorAll('.currentPrincipalLabel').forEach(el => {
     el.textContent = formatMoney(principal);
   });
 
-  // スコアカードA更新
   document.getElementById('cardMultA').textContent = `${pt.multA.toFixed(2)}倍`;
   document.getElementById('cardValA').textContent = formatMoney(pt.valA);
   const diffElA = document.getElementById('cardDiffA');
@@ -536,7 +1123,6 @@ function renderFrame() {
     pt.valA >= principal ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'
   }`;
 
-  // スコアカードB更新
   document.getElementById('cardMultB').textContent = `${pt.multB.toFixed(2)}倍`;
   document.getElementById('cardValB').textContent = formatMoney(pt.valB);
   const diffElB = document.getElementById('cardDiffB');
@@ -545,13 +1131,11 @@ function renderFrame() {
     pt.valB >= principal ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-600'
   }`;
 
-  // 日付＆経過期間
   document.getElementById('chartDateLabel').textContent = `${pt.year}年${pt.month}月`;
   const yrs = Math.floor(pt.elapsedMonths / 12);
   const mos = pt.elapsedMonths % 12;
   document.getElementById('elapsedLabel').textContent = `${yrs}年${mos}か月 (${formatMoney(principal)})`;
 
-  // 銘柄Aのステータスボックス
   const pctA = Math.round((pt.multA - 1) * 100);
   const statusTextA = document.getElementById('statusTextA');
   const statusBoxA = document.getElementById('statusBoxA');
@@ -574,6 +1158,7 @@ function renderFrame() {
 function drawChart(nameA, nameB) {
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
+  if (rect.width === 0) return;
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
   ctx.scale(dpr, dpr);
@@ -582,7 +1167,6 @@ function drawChart(nameA, nameB) {
   const H = rect.height;
   ctx.clearRect(0, 0, W, H);
 
-  // Y軸ラベルを「億」表記にするため左余白を少し広げる
   const padL = 68;
   const padR = 28;
   const padT = 24;
@@ -604,7 +1188,6 @@ function drawChart(nameA, nameB) {
   const getX = (idx) => padL + (idx / (visibleCount - 1)) * plotW;
   const getY = (val) => padT + plotH - (val / maxVal) * plotH;
 
-  // 横グリッド線とY軸ラベル
   ctx.strokeStyle = '#e2e8f0';
   ctx.lineWidth = 1;
   ctx.fillStyle = '#64748b';
@@ -619,11 +1202,9 @@ function drawChart(nameA, nameB) {
     ctx.moveTo(padL, y);
     ctx.lineTo(W - padR, y);
     ctx.stroke();
-    // 億万対応のラベル描画
     ctx.fillText(formatMoney(v), padL - 6, y + 4);
   }
 
-  // 元本割れゾーンと元本ライン
   if (slice.length >= 1) {
     ctx.save();
     ctx.fillStyle = 'rgba(244, 63, 94, 0.08)';
@@ -653,7 +1234,6 @@ function drawChart(nameA, nameB) {
     ctx.restore();
   }
 
-  // X軸の年ラベル描画
   ctx.fillStyle = '#64748b';
   ctx.textAlign = 'center';
   const startY = timeline[0].year;
@@ -669,7 +1249,6 @@ function drawChart(nameA, nameB) {
     }
   }
 
-  // ライン描画
   function drawSeries(prop, color, label) {
     if (slice.length < 2) return;
     ctx.strokeStyle = color;
@@ -703,13 +1282,9 @@ function drawChart(nameA, nameB) {
   drawSeries('valB', '#2563eb', nameB);
 }
 
-// ==========================================
-// 6. 再生・停止コントロール
-// ==========================================
 function togglePlay() {
-  if (isPlaying) {
-    stopPlay();
-  } else {
+  if (isPlaying) stopPlay();
+  else {
     if (currentIndex >= timeline.length - 1) {
       currentIndex = 0;
       seekBar.value = 0;
