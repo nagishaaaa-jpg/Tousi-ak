@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AKITO ASSET SIMULATOR v4 | 過去比較＆未来逆算シミュレーター</title>
+  <title>AKITO ASSET SIMULATOR v5 | 過去比較＆未来逆算シミュレーター（TQQQリバランス対応）</title>
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="資産シミュ">
 
-  <!-- ホーム画面用アイコン設定 (案2: エメラルドグリーン × 若葉・成長モチーフ🌱) -->
+  <!-- ホーム画面用アイコン設定 (エメラルドグリーン × 若葉・成長モチーフ🌱) -->
   <link id="favicon-link" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2310b981'/%3E%3Cstop offset='100%25' stop-color='%23047857'/%3E%3C/linearGradient%3E%3ClinearGradient id='leaf' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff'/%3E%3Cstop offset='100%25' stop-color='%23d1fae5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='115' fill='url(%23bg)'/%3E%3Ccircle cx='256' cy='256' r='190' fill='none' stroke='%23ffffff' stroke-opacity='0.16' stroke-width='14'/%3E%3Cpath d='M136 368 L210 294 L266 330 L376 196' fill='none' stroke='%23a7f3d0' stroke-opacity='0.45' stroke-width='22' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M330 196 H376 V242' fill='none' stroke='%23a7f3d0' stroke-opacity='0.45' stroke-width='22' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M256 390 V220' stroke='%23ffffff' stroke-width='28' stroke-linecap='round'/%3E%3Cpath d='M256 260 C256 175 345 135 395 145 C395 215 345 270 256 260 Z' fill='url(%23leaf)'/%3E%3Cpath d='M256 300 C256 230 185 195 135 205 C135 265 185 310 256 300 Z' fill='url(%23leaf)' opacity='0.92'/%3E%3Ccircle cx='256' cy='395' r='18' fill='%23ffffff'/%3E%3C/svg%3E">
   <link id="apple-touch-icon-link" rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%23059669'/%3E%3C/svg%3E">
 
@@ -40,10 +40,10 @@
   <div class="w-full max-w-4xl mb-4">
     <div class="flex flex-wrap items-center justify-between gap-2 mb-3 px-1">
       <div class="flex items-center gap-2">
-        <span class="bg-amber-500 text-slate-950 font-black px-2.5 py-0.5 rounded text-xs tracking-wider">AKITO EDITION v4</span>
-        <h1 class="text-white font-bold text-base md:text-lg">新NISA 資産運用シミュレーター</h1>
+        <span class="bg-amber-500 text-slate-950 font-black px-2.5 py-0.5 rounded text-xs tracking-wider">AKITO EDITION v5</span>
+        <h1 class="text-white font-bold text-base md:text-lg">新NISA ＆ レバレッジ戦略シミュレーター</h1>
       </div>
-      <div class="text-xs text-slate-400">過去検証 ＆ 未来の目標逆算</div>
+      <div class="text-xs text-slate-400">過去検証 ＆ 未来逆算（TQQQ 50:50リバランス対応）</div>
     </div>
 
     <!-- メインタブ（過去比較 vs 未来逆算） -->
@@ -58,31 +58,49 @@
   </div>
 
   <!-- ================================================================= -->
-  <!-- SECTION 1: 過去データ VS比較モード（従来機能）                      -->
+  <!-- SECTION 1: 過去データ VS比較モード                                 -->
   <!-- ================================================================= -->
   <div id="histAppSection" class="w-full max-w-4xl flex flex-col items-center">
     <!-- 操作パネル -->
     <div class="w-full bg-slate-800 text-white rounded-2xl p-4 md:p-5 mb-5 shadow-lg border border-slate-700">
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div class="inline-flex bg-slate-900 p-1 rounded-xl border border-slate-700">
-          <button id="modeLumpBtn" onclick="setInvestMode('lump')" class="px-4 py-1.5 rounded-lg text-xs md:text-sm font-black transition bg-amber-500 text-slate-950 shadow">
+          <button id="modeLumpBtn" onclick="setInvestMode('lump')" class="px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold transition text-slate-400 hover:text-white">
             💰 一括投資モード
           </button>
-          <button id="modeDcaBtn" onclick="setInvestMode('dca')" class="px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold transition text-slate-400 hover:text-white">
+          <button id="modeDcaBtn" onclick="setInvestMode('dca')" class="px-4 py-1.5 rounded-lg text-xs md:text-sm font-black transition bg-amber-500 text-slate-950 shadow">
             📈 毎月積立モード
           </button>
         </div>
         <div id="amountPresets" class="flex flex-wrap items-center gap-1.5"></div>
       </div>
 
+      <!-- 戦略ワンタップ切替バー -->
+      <div class="bg-slate-900/90 border border-amber-500/40 rounded-xl p-2.5 mb-4 flex flex-wrap items-center justify-between gap-2">
+        <div class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+          <span>⚡</span> <span>注目の比較プリセット:</span>
+        </div>
+        <div class="flex flex-wrap gap-1.5">
+          <button onclick="applyHistPreset('sp500', 'sp_tqqq_50', 'dca', 15, 2000)" class="text-xs bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-2.5 py-1 rounded-lg transition shadow">
+            🔥 S&P500 vs 50:50リバランス (ITバブル2000〜月15万)
+          </button>
+          <button onclick="applyHistPreset('sp500', 'sp_tqqq_50', 'dca', 15, 2010)" class="text-xs bg-slate-700 hover:bg-slate-600 text-white font-bold px-2.5 py-1 rounded-lg transition">
+            🚀 S&P500 vs 50:50リバランス (2010〜月15万)
+          </button>
+          <button onclick="applyHistPreset('nikkei', 'sp500', 'lump', 100, 1989)" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold px-2.5 py-1 rounded-lg transition">
+            📊 日経平均 vs S&P500 (1989〜)
+          </button>
+        </div>
+      </div>
+
       <!-- 設定グリッド -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
         <div>
-          <label class="block text-xs text-slate-400 mb-1">🅰️ 銘柄1（赤ライン）</label>
+          <label class="block text-xs text-slate-400 mb-1">🅰️ 銘柄・戦略1（赤ライン）</label>
           <select id="assetA" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-red-400 focus:outline-none focus:border-red-500"></select>
         </div>
         <div>
-          <label class="block text-xs text-slate-400 mb-1">🅱️ 銘柄2（青ライン）</label>
+          <label class="block text-xs text-slate-400 mb-1">🅱️ 銘柄・戦略2（青ライン）</label>
           <select id="assetB" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-blue-400 focus:outline-none focus:border-blue-500"></select>
         </div>
         <div>
@@ -90,9 +108,9 @@
           <select id="startYear" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-white focus:outline-none focus:border-amber-500"></select>
         </div>
         <div>
-          <label id="amountInputLabel" class="block text-xs text-slate-400 mb-1">💰 初期投資額（一括）</label>
+          <label id="amountInputLabel" class="block text-xs text-slate-400 mb-1">📈 毎月の積立額</label>
           <div class="flex items-center bg-slate-900 border border-slate-600 rounded-lg px-3 py-2">
-            <input id="initialAmount" type="number" value="100" min="1" max="10000" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
+            <input id="initialAmount" type="number" value="15" min="1" max="10000" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
             <span class="text-xs text-slate-400 ml-1">万円</span>
           </div>
         </div>
@@ -102,7 +120,7 @@
       <div class="flex flex-wrap items-center gap-1.5 mb-4">
         <span class="text-xs text-slate-400 mr-1">定番スタート時期:</span>
         <button onclick="setPresetYear(1989)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">1989 バブル最高値</button>
-        <button onclick="setPresetYear(2000)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2000 ITバブル</button>
+        <button onclick="setPresetYear(2000)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2000 ITバブル崩壊</button>
         <button onclick="setPresetYear(2007)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2007 リーマン直前</button>
         <button onclick="setPresetYear(2013)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2013 アベノミクス</button>
         <button onclick="setPresetYear(2020)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition">2020 コロナショック</button>
@@ -116,7 +134,10 @@
         <button onclick="resetSim()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-3 py-2 rounded-lg text-xs transition">
           ⏮ リセット
         </button>
-        <div class="flex-1 min-w-[160px] flex items-center gap-2">
+        <button onclick="jumpToEnd()" class="bg-slate-700 hover:bg-slate-600 text-amber-300 font-bold px-3 py-2 rounded-lg text-xs transition">
+          ⏭ 最終結果へ
+        </button>
+        <div class="flex-1 min-w-[140px] flex items-center gap-2">
           <input id="seekBar" type="range" min="0" max="100" value="0" class="w-full cursor-pointer">
         </div>
         <div class="flex items-center gap-1">
@@ -135,25 +156,34 @@
     <div class="w-full sim-card p-4 md:p-7">
       <div class="border-b border-slate-200 pb-3 mb-4">
         <div class="flex flex-wrap items-center gap-2 mb-1.5">
-          <span id="badgeVs" class="bg-slate-900 text-amber-400 text-xs font-bold px-2.5 py-1 rounded">日経平均 vs S&P500</span>
-          <span id="modeBadge" class="bg-emerald-700 text-white text-xs font-bold px-2 py-0.5 rounded">一括投資</span>
-          <span id="subCondition" class="text-xs text-slate-500 font-medium">1989年12月末に一括投資・配当再投資・手数料考慮せず</span>
+          <span id="badgeVs" class="bg-slate-900 text-amber-400 text-xs font-bold px-2.5 py-1 rounded">S&P500 vs S&P+TQQQ(50:50)</span>
+          <span id="modeBadge" class="bg-blue-700 text-white text-xs font-bold px-2 py-0.5 rounded">毎月積立</span>
+          <span id="subCondition" class="text-xs text-slate-500 font-medium">2000年12月末から毎月15万円積立・年1回リバランス・減価＆コスト反映済</span>
         </div>
         <h2 id="mainHeadline" class="text-lg md:text-2xl font-black text-slate-900 tracking-tight leading-snug">
-          1989年末に100万円買っていたら<br class="md:hidden">
-          <span id="headlineVs">日経平均 vs S&P500</span>、その後どうなった？
+          2000年末から毎月15万円積み立てていたら<br class="md:hidden">
+          S&P500 vs S&P+TQQQ(50:50)、その後どうなった？
         </h2>
+      </div>
+
+      <!-- リバランス戦略の解説バナー（該当銘柄選択時のみ表示） -->
+      <div id="rebalanceStrategyBanner" class="mb-4 bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-slate-700 flex items-start gap-2">
+        <span class="text-base leading-none mt-0.5">⚖️</span>
+        <div>
+          <span class="font-black text-blue-900">S&P500 50% ＋ TQQQ 50% リバランス戦略（シャノンの悪魔応用）：</span>
+          TQQQは日々の3倍レバレッジの減価（ボラティリティ・ドラッグ）・金利コスト・経費率を織り込んだ円換算指数で計算。毎年12月末に評価額が<strong>50%：50%</strong>になるよう自動リバランス（暴落したTQQQをS&P500の利益で買い増し、急騰時は利確）を行います。
+        </div>
       </div>
 
       <!-- 2銘柄スコアカード -->
       <div class="grid grid-cols-2 gap-3 md:gap-5 mb-4">
         <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 relative bg-white shadow-sm">
           <div class="flex items-center justify-between mb-1">
-            <span id="cardNameA" class="bg-red-600 text-white font-bold text-xs md:text-sm px-2.5 py-0.5 rounded">日経平均</span>
+            <span id="cardNameA" class="bg-red-600 text-white font-bold text-xs md:text-sm px-2.5 py-0.5 rounded">S&P500</span>
             <span id="cardMultA" class="text-red-600 font-black text-base md:text-xl">1.00倍</span>
           </div>
-          <div class="text-[11px] text-slate-500 font-medium">累計元本 <span class="currentPrincipalLabel font-bold text-slate-700">100万円</span> の評価額</div>
-          <div id="cardValA" class="text-2xl md:text-4xl font-black text-slate-900 my-0.5 tracking-tight">100万円</div>
+          <div class="text-[11px] text-slate-500 font-medium">累計元本 <span class="currentPrincipalLabel font-bold text-slate-700">15万円</span> の評価額</div>
+          <div id="cardValA" class="text-2xl md:text-4xl font-black text-slate-900 my-0.5 tracking-tight">15万円</div>
           <div id="cardDiffA" class="text-xs font-bold bg-slate-100 text-slate-600 inline-block px-2 py-0.5 rounded w-full">
             ±0万円 (±0.0%)
           </div>
@@ -161,11 +191,11 @@
 
         <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 relative bg-white shadow-sm">
           <div class="flex items-center justify-between mb-1">
-            <span id="cardNameB" class="bg-blue-600 text-white font-bold text-xs md:text-sm px-2.5 py-0.5 rounded">S&P500</span>
+            <span id="cardNameB" class="bg-blue-600 text-white font-bold text-xs md:text-sm px-2.5 py-0.5 rounded">S&P+TQQQ(50:50)</span>
             <span id="cardMultB" class="text-blue-600 font-black text-base md:text-xl">1.00倍</span>
           </div>
-          <div class="text-[11px] text-slate-500 font-medium">累計元本 <span class="currentPrincipalLabel font-bold text-slate-700">100万円</span> の評価額</div>
-          <div id="cardValB" class="text-2xl md:text-4xl font-black text-slate-900 my-0.5 tracking-tight">100万円</div>
+          <div class="text-[11px] text-slate-500 font-medium">累計元本 <span class="currentPrincipalLabel font-bold text-slate-700">15万円</span> の評価額</div>
+          <div id="cardValB" class="text-2xl md:text-4xl font-black text-slate-900 my-0.5 tracking-tight">15万円</div>
           <div id="cardDiffB" class="text-xs font-bold bg-slate-100 text-slate-600 inline-block px-2 py-0.5 rounded w-full">
             ±0万円 (±0.0%)
           </div>
@@ -175,10 +205,10 @@
       <!-- チャート描画エリア -->
       <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 mb-4 bg-white relative">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
-          <div id="chartDateLabel" class="text-sm md:text-base font-bold text-slate-700">1989年12月</div>
+          <div id="chartDateLabel" class="text-sm md:text-base font-bold text-slate-700">2000年12月</div>
           <div class="text-xs text-slate-500 flex items-center gap-1.5">
             <span class="inline-block w-4 border-t-2 border-dashed border-emerald-600"></span>
-            <span>元本ライン：累計<span class="currentPrincipalLabel font-bold text-emerald-700">100万円</span>（点線より下＝元本割れ）</span>
+            <span>元本ライン：累計<span class="currentPrincipalLabel font-bold text-emerald-700">15万円</span>（点線より下＝元本割れ）</span>
           </div>
         </div>
         <div class="w-full h-[250px] md:h-[310px]">
@@ -190,15 +220,15 @@
       <div class="grid grid-cols-3 gap-2.5 md:gap-4">
         <div class="border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-amber-50/70">
           <div class="text-[11px] text-slate-500 font-bold mb-0.5">経過（累計元本）</div>
-          <div id="elapsedLabel" class="text-xs md:text-base font-black text-slate-900">0年0か月 (100万円)</div>
+          <div id="elapsedLabel" class="text-xs md:text-base font-black text-slate-900">0年0か月 (15万円)</div>
         </div>
-        <div id="statusBoxA" class="border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-emerald-50/70">
-          <div id="statusTitleA" class="text-[11px] text-slate-500 font-bold mb-0.5">日経平均の状態</div>
-          <div id="statusTextA" class="text-xs md:text-base font-black text-slate-900 truncate">運用スタート</div>
+        <div id="statusBoxB" class="border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-emerald-50/70">
+          <div id="statusTitleB" class="text-[11px] text-slate-500 font-bold mb-0.5">銘柄2の状態</div>
+          <div id="statusTextB" class="text-xs md:text-base font-black text-slate-900 truncate">運用スタート</div>
         </div>
         <div class="border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-slate-50">
           <div class="text-[11px] text-slate-500 font-bold mb-0.5">その年の出来事</div>
-          <div id="eventLabel" class="text-xs md:text-base font-black text-slate-900 truncate">日経平均 史上最高値(38,915円)</div>
+          <div id="eventLabel" class="text-xs md:text-base font-black text-slate-900 truncate">ITバブル崩壊</div>
         </div>
       </div>
     </div>
@@ -237,11 +267,11 @@
       <div class="bg-slate-900/90 border border-slate-700 rounded-xl p-4 mb-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
           <div>
-            <label class="block text-xs text-amber-400 font-bold mb-1">📊 ベースにする銘柄を選択</label>
+            <label class="block text-xs text-amber-400 font-bold mb-1">📊 ベースにする銘柄・戦略を選択</label>
             <select id="goalAssetSelect" onchange="onGoalAssetChange()" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-amber-500"></select>
             <div class="mt-2 flex items-center justify-between text-xs text-slate-400 bg-slate-800/80 px-3 py-1.5 rounded-lg">
-              <span>1989〜2026年の過去実績平均(年率):</span>
-              <span id="histCagrBadge" class="font-black text-amber-400 text-sm">11.1%</span>
+              <span>長期実績・減価加味ベース期待年率:</span>
+              <span id="histCagrBadge" class="font-black text-amber-400 text-sm">13.0%</span>
             </div>
           </div>
 
@@ -250,22 +280,30 @@
             <div class="flex items-center justify-between mb-1">
               <label class="text-xs text-emerald-400 font-bold">⚙️ シミュレーション想定利回り（年率）</label>
               <div class="flex items-center gap-1">
-                <input id="goalCustomRate" type="number" step="0.1" min="0" max="30" value="11.1" oninput="syncRateFromInput()" class="w-16 bg-slate-800 border border-emerald-500 rounded px-2 py-0.5 text-right font-black text-base text-emerald-400 focus:outline-none">
+                <input id="goalCustomRate" type="number" step="0.1" min="0" max="30" value="13.0" oninput="syncRateFromInput()" class="w-16 bg-slate-800 border border-emerald-500 rounded px-2 py-0.5 text-right font-black text-base text-emerald-400 focus:outline-none">
                 <span class="text-xs font-bold text-emerald-400">%</span>
               </div>
             </div>
-            <input id="goalRateSlider" type="range" step="0.1" min="0.5" max="20" value="11.1" oninput="syncRateFromSlider()" class="w-full range-amber cursor-pointer my-1">
+            <input id="goalRateSlider" type="range" step="0.1" min="0.5" max="20" value="13.0" oninput="syncRateFromSlider()" class="w-full range-amber cursor-pointer my-1">
             
             <!-- ワンタップ利回りボタン -->
             <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
-              <span class="text-[11px] text-slate-400">ワンタップ切替:</span>
-              <button onclick="setCustomRate('hist')" class="text-[11px] bg-amber-500/20 border border-amber-500/50 text-amber-300 hover:bg-amber-500/30 px-2 py-0.5 rounded font-bold transition">過去平均に戻す</button>
-              <button onclick="setCustomRate(4.0)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded transition">保守的 4%</button>
-              <button onclick="setCustomRate(5.0)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded transition">手堅く 5%</button>
-              <button onclick="setCustomRate(7.0)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded transition">標準 7%</button>
-              <button onclick="setCustomRate(10.0)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded transition">積極 10%</button>
+              <span class="text-[11px] text-slate-400">ワンタップ:</span>
+              <button onclick="setCustomRate('hist')" class="text-[11px] bg-amber-500/20 border border-amber-500/50 text-amber-300 hover:bg-amber-500/30 px-2 py-0.5 rounded font-bold transition">銘柄基準に戻す</button>
+              <button onclick="setCustomRate(5.0)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded transition">堅実 5%</button>
+              <button onclick="setCustomRate(8.0)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded transition">S&P標準 8%</button>
+              <button onclick="setCustomRate(13.0)" class="text-[11px] bg-blue-600/40 border border-blue-400/50 text-blue-200 hover:bg-blue-600/60 px-2 py-0.5 rounded font-bold transition">50:50リバランス 13%</button>
             </div>
           </div>
+        </div>
+
+        <!-- S&P500単独との並列比較トグル -->
+        <div class="mt-3 pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
+          <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-200">
+            <input id="goalCompareSpToggle" type="checkbox" checked onchange="calcGoalSim()" class="w-4 h-4 rounded accent-amber-500">
+            <span>⚔️ グラフに「S&P500単独（年率8.0%）」の比較ラインも同時表示する</span>
+          </label>
+          <span class="text-[11px] text-slate-400">※月15万円なら「S&P500 7.5万 ＋ TQQQ 7.5万」の配分イメージ</span>
         </div>
       </div>
 
@@ -275,14 +313,14 @@
         <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-700">
           <label class="block text-xs text-slate-300 font-bold mb-1">🎯 目標金額</label>
           <div class="flex items-center bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 mb-2">
-            <input id="goalTargetMan" type="number" value="3000" min="10" max="100000" step="100" oninput="calcGoalSim()" class="w-full bg-transparent text-base font-black text-white focus:outline-none">
+            <input id="goalTargetMan" type="number" value="5000" min="10" max="100000" step="100" oninput="calcGoalSim()" class="w-full bg-transparent text-base font-black text-white focus:outline-none">
             <span class="text-xs text-slate-400 ml-1">万円</span>
           </div>
           <div class="flex flex-wrap gap-1">
-            <button onclick="setGoalInput('goalTargetMan', 1000)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">1,000万</button>
             <button onclick="setGoalInput('goalTargetMan', 2000)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">2,000万</button>
             <button onclick="setGoalInput('goalTargetMan', 3000)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">3,000万</button>
             <button onclick="setGoalInput('goalTargetMan', 5000)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">5,000万</button>
+            <button onclick="setGoalInput('goalTargetMan', 8000)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">8,000万</button>
             <button onclick="setGoalInput('goalTargetMan', 10000)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">1億円</button>
           </div>
         </div>
@@ -291,7 +329,7 @@
         <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-700">
           <label class="block text-xs text-slate-300 font-bold mb-1">💎 初期投資額（元手）</label>
           <div class="flex items-center bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 mb-2">
-            <input id="goalInitialMan" type="number" value="100" min="0" max="50000" step="10" oninput="calcGoalSim()" class="w-full bg-transparent text-base font-black text-white focus:outline-none">
+            <input id="goalInitialMan" type="number" value="0" min="0" max="50000" step="10" oninput="calcGoalSim()" class="w-full bg-transparent text-base font-black text-white focus:outline-none">
             <span class="text-xs text-slate-400 ml-1">万円</span>
           </div>
           <div class="flex flex-wrap gap-1">
@@ -299,30 +337,28 @@
             <button onclick="setGoalInput('goalInitialMan', 50)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">50万</button>
             <button onclick="setGoalInput('goalInitialMan', 100)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">100万</button>
             <button onclick="setGoalInput('goalInitialMan', 300)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">300万</button>
-            <button onclick="setGoalInput('goalInitialMan', 500)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">500万</button>
           </div>
         </div>
 
         <!-- モード①用：毎月積立額 ／ モード②用：積立期間(年) -->
         <div id="goalMonthlyBox" class="bg-slate-900/70 p-3 rounded-xl border border-blue-500/60">
-          <label class="block text-xs text-blue-300 font-bold mb-1">📈 毎月の積立額</label>
+          <label class="block text-xs text-blue-300 font-bold mb-1">📈 毎月の積立総額（半分ずつ配分）</label>
           <div class="flex items-center bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 mb-2">
-            <input id="goalMonthlyMan" type="number" value="5" min="0" max="1000" step="0.5" oninput="calcGoalSim()" class="w-full bg-transparent text-base font-black text-white focus:outline-none">
+            <input id="goalMonthlyMan" type="number" value="15" min="0" max="1000" step="0.5" oninput="calcGoalSim()" class="w-full bg-transparent text-base font-black text-white focus:outline-none">
             <span class="text-xs text-slate-400 ml-1">万円</span>
           </div>
           <div class="flex flex-wrap gap-1">
-            <button onclick="setGoalInput('goalMonthlyMan', 1)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">1万</button>
-            <button onclick="setGoalInput('goalMonthlyMan', 3)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">3万</button>
             <button onclick="setGoalInput('goalMonthlyMan', 5)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">5万</button>
             <button onclick="setGoalInput('goalMonthlyMan', 10)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">10万</button>
-            <button onclick="setGoalInput('goalMonthlyMan', 30)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">30万</button>
+            <button onclick="setGoalInput('goalMonthlyMan', 15)" class="text-[11px] bg-amber-500/30 border border-amber-400 text-amber-200 hover:bg-amber-500/40 px-2 py-0.5 rounded font-bold">15万(7.5万ずつ)</button>
+            <button onclick="setGoalInput('goalMonthlyMan', 20)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">20万</button>
           </div>
         </div>
 
         <div id="goalYearsBox" class="bg-slate-900/70 p-3 rounded-xl border border-blue-500/60 hidden">
           <label class="block text-xs text-blue-300 font-bold mb-1">🗓️ 目標までの積立期間</label>
           <div class="flex items-center bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 mb-2">
-            <input id="goalTargetYears" type="number" value="20" min="1" max="60" step="1" oninput="calcGoalSim()" class="w-full bg-transparent text-base font-black text-white focus:outline-none">
+            <input id="goalTargetYears" type="number" value="15" min="1" max="60" step="1" oninput="calcGoalSim()" class="w-full bg-transparent text-base font-black text-white focus:outline-none">
             <span class="text-xs text-slate-400 ml-1">年間</span>
           </div>
           <div class="flex flex-wrap gap-1">
@@ -330,7 +366,6 @@
             <button onclick="setGoalInput('goalTargetYears', 10)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">10年</button>
             <button onclick="setGoalInput('goalTargetYears', 15)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">15年</button>
             <button onclick="setGoalInput('goalTargetYears', 20)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">20年</button>
-            <button onclick="setGoalInput('goalTargetYears', 30)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">30年</button>
           </div>
         </div>
       </div>
@@ -343,33 +378,31 @@
       <div class="border-[2.5px] border-slate-800 rounded-2xl p-4 md:p-6 mb-5 bg-gradient-to-br from-slate-50 to-blue-50/40 relative">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
           <div class="flex items-center gap-2">
-            <span id="goalResultAssetBadge" class="bg-slate-900 text-amber-400 text-xs font-bold px-2.5 py-1 rounded">S&P500</span>
-            <span id="goalResultRateBadge" class="bg-emerald-600 text-white text-xs font-bold px-2.5 py-1 rounded">想定利回り 年率 11.1%</span>
+            <span id="goalResultAssetBadge" class="bg-slate-900 text-amber-400 text-xs font-bold px-2.5 py-1 rounded">S&P+TQQQ(50:50)</span>
+            <span id="goalResultRateBadge" class="bg-emerald-600 text-white text-xs font-bold px-2.5 py-1 rounded">想定利回り 年率 13.0%</span>
           </div>
-          <div id="goalCompareNotice" class="text-xs font-bold text-slate-500"></div>
+          <div id="goalSplitBadge" class="text-xs font-bold text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded">
+            内訳：S&P500 7.5万円 ＋ TQQQ 7.5万円
+          </div>
         </div>
 
         <div id="goalMainAnswerLabel" class="text-xs md:text-sm font-bold text-slate-600 mb-1">
-          目標 3,000万円 に到達するまでの期間は…
+          目標 5,000万円 に到達するまでの期間は…
         </div>
         <div id="goalMainAnswerValue" class="text-3xl md:text-5xl font-black text-blue-700 tracking-tight my-1">
-          14年 2か月
+          13年 10か月
         </div>
         <div id="goalSubAnswerText" class="text-xs md:text-sm font-bold text-slate-700 mt-2 bg-white/90 border border-slate-200 rounded-lg px-3 py-2 inline-block">
-          元本合計 950万円 ／ 運用益 +2,050万円
+          元本合計 2,490万円 ／ 運用益 +2,510万円
         </div>
 
-        <!-- ★追加機能：運用額〇〇万円で年利〇%の場合、何もしなくても年間〇〇万円増えていく表示 -->
+        <!-- 運用益（不労所得ペース）表示 -->
         <div id="goalPassiveIncomeBox" class="mt-3 bg-emerald-50/95 border border-emerald-300 rounded-xl p-3 text-xs md:text-sm text-emerald-950 leading-relaxed shadow-sm">
           <div class="flex items-start gap-2">
             <span class="text-base leading-none mt-0.5">🌱</span>
             <div class="flex-1">
-              <div id="goalPassiveMainText" class="font-bold text-slate-800">
-                運用額 <span class="text-emerald-700 font-black">3,000万円</span> で年利 <span class="text-emerald-700 font-black">11.1%</span> の場合、何もしなくても<span class="underline decoration-emerald-500 decoration-2 underline-offset-2 font-black text-emerald-700">年間 約333万円</span>（月換算 約27万7,500円）増えていく計算になります✨
-              </div>
-              <div id="goalPassiveSubText" class="text-[11px] text-emerald-800/80 mt-1 font-medium">
-                ※現在の初期投資額（100万円）だけでも、年利11.1%なら何もしなくても年間 約11万1,000円増えていきます
-              </div>
+              <div id="goalPassiveMainText" class="font-bold text-slate-800"></div>
+              <div id="goalPassiveSubText" class="text-[11px] text-emerald-800/80 mt-1 font-medium"></div>
             </div>
           </div>
         </div>
@@ -379,28 +412,28 @@
       <div class="grid grid-cols-3 gap-2.5 md:gap-4 mb-5">
         <div class="border-[2px] border-slate-800 rounded-xl p-3 bg-white">
           <div class="text-[11px] text-slate-500 font-bold mb-0.5">投資元本の合計</div>
-          <div id="goalCardPrincipal" class="text-base md:text-2xl font-black text-slate-800">950万円</div>
-          <div id="goalCardPrincipalSub" class="text-[11px] text-slate-500 mt-0.5">初期100万 + 積立850万</div>
+          <div id="goalCardPrincipal" class="text-base md:text-2xl font-black text-slate-800">2,490万円</div>
+          <div id="goalCardPrincipalSub" class="text-[11px] text-slate-500 mt-0.5">初期0万 + 積立2,490万</div>
         </div>
         <div class="border-[2px] border-slate-800 rounded-xl p-3 bg-white">
           <div class="text-[11px] text-slate-500 font-bold mb-0.5">複利で増えた運用益</div>
-          <div id="goalCardProfit" class="text-base md:text-2xl font-black text-emerald-600">+2,055万円</div>
-          <div id="goalCardProfitSub" class="text-[11px] text-slate-500 mt-0.5">元本対比 +216%</div>
+          <div id="goalCardProfit" class="text-base md:text-2xl font-black text-emerald-600">+2,510万円</div>
+          <div id="goalCardProfitSub" class="text-[11px] text-slate-500 mt-0.5">元本対比 +101%</div>
         </div>
-        <div class="border-[2px] border-slate-800 rounded-xl p-3 bg-amber-50/60">
-          <div id="goalCardCompareTitle" class="text-[11px] text-slate-600 font-bold mb-0.5">もし過去平均(11.1%)なら</div>
-          <div id="goalCardCompareVal" class="text-base md:text-2xl font-black text-amber-600">14年2か月</div>
-          <div id="goalCardCompareSub" class="text-[11px] text-slate-500 mt-0.5">利回り差の比較</div>
+        <div class="border-[2px] border-slate-800 rounded-xl p-3 bg-rose-50/70">
+          <div id="goalCardCompareTitle" class="text-[11px] text-slate-600 font-bold mb-0.5">S&P500単独(8.0%)なら</div>
+          <div id="goalCardCompareVal" class="text-base md:text-2xl font-black text-rose-600">17年 5か月</div>
+          <div id="goalCardCompareSub" class="text-[11px] text-slate-500 mt-0.5">3年7か月短縮！</div>
         </div>
       </div>
 
-      <!-- 資産推移チャート（設定利回り vs 過去平均利回り vs 元本） -->
+      <!-- 資産推移チャート -->
       <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 bg-white">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
           <div class="text-sm md:text-base font-bold text-slate-800">📈 目標到達までの資産推移シミュレーション</div>
           <div class="flex flex-wrap items-center gap-3 text-xs font-bold">
-            <span class="flex items-center gap-1 text-blue-600"><span class="inline-block w-3 h-3 rounded-full bg-blue-600"></span> 想定利回り</span>
-            <span class="flex items-center gap-1 text-amber-500"><span class="inline-block w-4 border-t-2 border-dashed border-amber-500"></span> 銘柄の過去平均利回り</span>
+            <span class="flex items-center gap-1 text-blue-600"><span class="inline-block w-3 h-3 rounded-full bg-blue-600"></span> 選択戦略（想定利回り）</span>
+            <span id="legendSpCompare" class="flex items-center gap-1 text-rose-600"><span class="inline-block w-4 border-t-2 border-dashed border-rose-500"></span> S&P500単独(8.0%)</span>
             <span class="flex items-center gap-1 text-emerald-700"><span class="inline-block w-3 h-3 bg-emerald-600/30 border border-emerald-600"></span> 累計元本</span>
           </div>
         </div>
@@ -410,7 +443,7 @@
       </div>
 
       <div class="mt-3 text-[11px] text-slate-400 leading-relaxed">
-        ※月次複利で計算しています。過去の平均利回り（CAGR）は1989年末〜2026年の円換算指数データから算出した実績値であり、将来の利回りを保証するものではありません。スライダーで4%〜5%などの堅実な利回りに切り替えて比較してみてください。
+        ※月次複利で計算しています。「S&P500＋TQQQ 50%リバランス」の実質年率13.0%は、TQQQの信託報酬（約0.88%）・金利コスト・ボラティリティ減価・定期リバランス効果を加味した長期平均ベースの試算値です。実際の相場では途中に-50%以上の大きな暴落局面も発生します。
       </div>
     </div>
   </div>
@@ -465,12 +498,7 @@
         background_color: "#0f172a",
         theme_color: "#0f172a",
         icons: [
-          {
-            src: pngDataUrl,
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "any maskable"
-          }
+          { src: pngDataUrl, sizes: "512x512", type: "image/png", purpose: "any maskable" }
         ]
       };
       const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
@@ -479,9 +507,7 @@
       manifestLink.rel = 'manifest';
       manifestLink.href = manifestUrl;
       document.head.appendChild(manifestLink);
-    } catch (e) {
-      // SVGアイコンへフォールバック
-    }
+    } catch (e) {}
     URL.revokeObjectURL(url);
   };
   img.src = url;
@@ -502,26 +528,20 @@ function formatMoney(valMan, isDiff = false) {
   return `${sign}${absVal.toLocaleString()}万円`;
 }
 
-// 少額の毎月積立額用（例: 3.45万円 → 3万4,500円）
 function formatDetailedMonthly(valMan) {
   if (valMan <= 0) return "0円（初期投資のみで達成可能！）";
   const totalYen = Math.round(valMan * 10000);
-  if (totalYen >= 100000000) {
-    return formatMoney(valMan);
-  }
+  if (totalYen >= 100000000) return formatMoney(valMan);
   const man = Math.floor(totalYen / 10000);
-  const yen = Math.round((totalYen % 10000) / 100) * 100; // 100円単位丸め
+  const yen = Math.round((totalYen % 10000) / 100) * 100;
   if (man === 0) return `${yen.toLocaleString()}円`;
   if (yen === 0) return `${man.toLocaleString()}万円`;
   return `${man.toLocaleString()}万${yen.toLocaleString()}円`;
 }
 
-// 年間・月間の不労所得（運用益）表示用フォーマット
 function formatYieldAmount(valMan) {
   if (valMan <= 0) return "0円";
-  if (valMan >= 100) {
-    return formatMoney(valMan);
-  }
+  if (valMan >= 100) return formatMoney(valMan);
   const totalYen = Math.round(valMan * 10000);
   const man = Math.floor(totalYen / 10000);
   const yen = Math.round((totalYen % 10000) / 100) * 100;
@@ -543,68 +563,149 @@ function formatDiff(val, principal) {
 const YEARS = [];
 for (let y = 1989; y <= 2026; y++) YEARS.push(y);
 
+// TQQQ疑似年次リターン（NASDAQ100の3倍から日次ボラティリティ減価・金利コスト・経費率0.88%を差し引いた円換算ベース指数）
+// ※1989年=100スタート。2000-2002年のITバブル崩壊で累計-99%超下落し、2008年リーマンショックで-83%下落する実態挙動を再現
+const TQQQ_VALUES = [
+  100,    // 1989
+  62,     // 1990
+  175,    // 1991
+  210,    // 1992
+  215,    // 1993
+  160,    // 1994
+  440,    // 1995
+  1350,   // 1996
+  3100,   // 1997
+  11500,  // 1998
+  58000,  // 1999 (ITバブル絶頂)
+  12760,  // 2000 (-78% ITバブル崩壊1年目)
+  3190,   // 2001 (-75% ITバブル崩壊2年目)
+  638,    // 2002 (-80% ITバブル大底)
+  1690,   // 2003 (+165% 反発)
+  2095,   // 2004 (+24%)
+  2053,   // 2005 (-2% ヨコヨコ減価)
+  2340,   // 2006 (+14%)
+  3557,   // 2007 (+52%)
+  605,    // 2008 (-83% リーマンショック)
+  1724,   // 2009 (+185% 急反発)
+  2620,   // 2010 (+52%)
+  2541,   // 2011 (-3% 欧州危機ボラ減価)
+  3760,   // 2012 (+48%)
+  8460,   // 2013 (+125% アベノミクス円安＋米株高)
+  12860,  // 2014 (+52%)
+  14917,  // 2015 (+16%)
+  15514,  // 2016 (+4%)
+  28700,  // 2017 (+85%)
+  24395,  // 2018 (-15% 年末急落)
+  50010,  // 2019 (+105%)
+  112520, // 2020 (+125% コロナ後ハイテク急騰)
+  213790, // 2021 (+90%)
+  49170,  // 2022 (-77% FRB利上げ急落)
+  147510, // 2023 (+200% AIブーム急反発)
+  265520, // 2024 (+80%)
+  345170, // 2025 (+30%)
+  407300  // 2026 (+18%)
+];
+
 const ASSET_DATA = {
   sp500: {
     name: "S&P500", fullName: "米国株式(S&P500・円換算)",
-    values: [100,91,110,118,117,108,154,214,320,365,395,398,405,290,335,355,425,495,490,255,330,332,322,420,685,905,930,1015,1190,1110,1440,1610,2310,2150,2920,4100,4650,4980]
+    values: [100,91,110,118,117,108,154,214,320,365,395,398,405,290,335,355,425,495,490,255,330,332,322,420,685,905,930,1015,1190,1110,1440,1610,2310,2150,2920,4100,4650,4980],
+    customCagr: 8.5
+  },
+  sp_tqqq_50: {
+    name: "S&P+TQQQ(50:50)", fullName: "★ S&P500(50%) ＋ TQQQ(50%) 年1回リバランス",
+    isRebalanceStrategy: true,
+    baseA: "sp500",
+    baseB: "tqqq",
+    weightA: 0.5,
+    values: [], // 起動時に動的計算
+    customCagr: 13.0
+  },
+  sp_tqqq_70_30: {
+    name: "S&P70:TQQQ30", fullName: "★ S&P500(70%) ＋ TQQQ(30%) 年1回リバランス",
+    isRebalanceStrategy: true,
+    baseA: "sp500",
+    baseB: "tqqq",
+    weightA: 0.7,
+    values: [],
+    customCagr: 11.2
+  },
+  tqqq: {
+    name: "TQQQ(3倍単体)", fullName: "米国ハイテク3倍レバ(TQQQ単体・減価加味)",
+    values: TQQQ_VALUES,
+    customCagr: 15.5
   },
   orukan: {
     name: "オルカン", fullName: "全世界株式(オール・カントリー)",
-    values: [100,80,92,90,100,96,120,152,195,215,250,240,235,180,225,250,315,385,405,200,275,275,245,320,500,620,620,665,810,725,920,1020,1380,1300,1730,2350,2680,2860]
+    values: [100,80,92,90,100,96,120,152,195,215,250,240,235,180,225,250,315,385,405,200,275,275,245,320,500,620,620,665,810,725,920,1020,1380,1300,1730,2350,2680,2860],
+    customCagr: 7.5
   },
   nasdaq100: {
     name: "NASDAQ100", fullName: "米国大型ハイテク(NASDAQ100)",
-    values: [100,85,130,140,142,130,195,310,430,710,1320,940,730,430,580,620,740,800,910,430,670,710,700,930,1550,2150,2380,2500,3250,3180,4350,6100,8800,6800,11300,16800,19800,21500]
-  },
-  vti: {
-    name: "全米株式(VTI)", fullName: "全米株式(CRSP USトータル)",
-    values: [100,89,112,122,121,110,156,215,318,355,390,392,402,292,345,370,448,522,515,268,352,362,348,452,740,970,990,1095,1280,1190,1540,1750,2480,2280,3090,4310,4880,5220]
+    values: [100,85,130,140,142,130,195,310,430,710,1320,940,730,430,580,620,740,800,910,430,670,710,700,930,1550,2150,2380,2500,3250,3180,4350,6100,8800,6800,11300,16800,19800,21500],
+    customCagr: 11.0
   },
   nikkei: {
     name: "日経平均", fullName: "日経平均株価",
-    values: [100,62,59,44,45,51,51,50,39,36,49,36,28,23,29,31,44,48,43,25,30,29,25,31,49,53,59,60,73,65,78,92,98,91,120,146,158,166]
-  },
-  topix: {
-    name: "TOPIX", fullName: "東証株価指数(TOPIX)",
-    values: [100,61,60,46,51,55,56,53,43,40,60,46,37,31,39,43,63,65,58,34,37,38,32,39,61,68,76,78,96,82,97,110,124,123,160,195,212,225]
-  },
-  india: {
-    name: "インド株", fullName: "インド株インデックス(Nifty50・円換算)",
-    values: [100,115,140,185,210,230,185,195,235,190,290,250,235,225,370,430,650,960,1480,580,1080,1180,810,1120,1350,1980,1920,1950,2550,2480,2720,2950,4100,4450,5700,7400,8300,9100]
+    values: [100,62,59,44,45,51,51,50,39,36,49,36,28,23,29,31,44,48,43,25,30,29,25,31,49,53,59,60,73,65,78,92,98,91,120,146,158,166],
+    customCagr: 5.0
   },
   gold: {
     name: "ゴールド(金)", fullName: "純金・ゴールド(円換算)",
-    values: [100,91,79,73,76,68,72,81,69,59,53,56,66,73,79,82,108,135,165,140,180,205,215,250,225,255,235,248,275,265,310,365,395,455,550,780,960,1080]
+    values: [100,91,79,73,76,68,72,81,69,59,53,56,66,73,79,82,108,135,165,140,180,205,215,250,225,255,235,248,275,265,310,365,395,455,550,780,960,1080],
+    customCagr: 6.5
   }
 };
 
-// 各銘柄の過去平均年利（CAGR）を算出して保持
+// リバランス戦略の一括指数推移（年1回リバランス）を事前算出
+['sp_tqqq_50', 'sp_tqqq_70_30'].forEach(key => {
+  const strat = ASSET_DATA[key];
+  const wA = strat.weightA;
+  const wB = 1 - wA;
+  const vA = ASSET_DATA[strat.baseA].values;
+  const vB = ASSET_DATA[strat.baseB].values;
+  const res = [100];
+  let curTotal = 100;
+  for (let i = 1; i < vA.length; i++) {
+    const rA = vA[i] / vA[i - 1];
+    const rB = vB[i] / vB[i - 1];
+    curTotal = curTotal * wA * rA + curTotal * wB * rB;
+    res.push(Math.round(curTotal * 10) / 10);
+  }
+  strat.values = res;
+});
+
+// 各銘柄のCAGR設定
 Object.keys(ASSET_DATA).forEach(k => {
-  const vals = ASSET_DATA[k].values;
-  const nYears = vals.length - 1; // 37年
-  const cagr = (Math.pow(vals[vals.length - 1] / vals[0], 1 / nYears) - 1) * 100;
-  ASSET_DATA[k].cagr = Math.round(cagr * 10) / 10;
+  if (ASSET_DATA[k].customCagr) {
+    ASSET_DATA[k].cagr = ASSET_DATA[k].customCagr;
+  } else {
+    const vals = ASSET_DATA[k].values;
+    const nYears = vals.length - 1;
+    const cagr = (Math.pow(vals[vals.length - 1] / vals[0], 1 / nYears) - 1) * 100;
+    ASSET_DATA[k].cagr = Math.round(cagr * 10) / 10;
+  }
 });
 
 const HISTORICAL_EVENTS = {
   1989: "日経平均 史上最高値(38,915円)", 1990: "バブル崩壊始まる", 1991: "ジュリアナ東京オープン",
   1992: "バブル崩壊加速", 1993: "Jリーグ開幕", 1994: "松本サリン事件", 1995: "阪神・淡路大震災",
   1996: "金融ビッグバン構想", 1997: "アジア通貨危機", 1998: "日本長期信用銀行破綻", 1999: "ITバブル絶頂期",
-  2000: "ITバブル崩壊", 2001: "米国同時多発テロ", 2002: "日韓W杯開催", 2003: "日経平均大底(7,607円)",
+  2000: "ITバブル崩壊（ハイテク大暴落）", 2001: "米国同時多発テロ", 2002: "ITバブル大底（TQQQ -99%級）", 2003: "日経平均大底・米国株反発",
   2004: "新紙幣発行", 2005: "郵政解散・日本株急反発", 2006: "ライブドアショック", 2007: "パリバ・ショック",
-  2008: "リーマンショック", 2009: "米国株大底から反発", 2010: "ギリシャ危機", 2011: "東日本大震災",
-  2012: "アベノミクス始動", 2013: "黒田バズーカ", 2014: "NISA制度スタート", 2015: "チャイナショック",
-  2016: "英国EU離脱決定", 2017: "ビットコインバブル", 2018: "米中貿易摩擦", 2019: "令和改元",
-  2020: "コロナショック暴落＆急反発", 2021: "米国歴史的株高", 2022: "ウクライナ侵攻・急速な円安",
-  2023: "生成AIブーム到来", 2024: "新NISA開始・日経平均最高値更新", 2025: "AI投資拡大・インフレ定着",
+  2008: "リーマンショック（TQQQ -83%）", 2009: "米国株大底から急反発！", 2010: "ギリシャ危機", 2011: "東日本大震災・欧州債務危機",
+  2012: "アベノミクス始動", 2013: "黒田バズーカ・米国株急騰", 2014: "NISA制度スタート", 2015: "チャイナショック",
+  2016: "英国EU離脱決定", 2017: "ハイテク株・ビットコイン急騰", 2018: "米中貿易摩擦・年末急落", 2019: "令和改元・米国株高",
+  2020: "コロナショック暴落＆急反発", 2021: "米国歴史的株高", 2022: "FRB急速利上げ（TQQQ -77%）",
+  2023: "生成AIブーム到来・急反発", 2024: "新NISA開始・米国株最高値更新", 2025: "AI投資拡大・インフレ定着",
   2026: "新NISA普及定着・高値圏推移"
 };
 
 // ==========================================
 // 2. メインアプリの切り替え制御
 // ==========================================
-let currentMainApp = 'hist'; // 'hist' or 'goal'
-let goalSubMode = 'years';   // 'years' (年数逆算) or 'pmt' (積立額逆算)
+let currentMainApp = 'hist';
+let goalSubMode = 'years';
 
 function switchMainApp(app) {
   currentMainApp = app;
@@ -661,7 +762,7 @@ function onGoalAssetChange() {
   const key = document.getElementById('goalAssetSelect').value;
   const cagr = ASSET_DATA[key].cagr;
   document.getElementById('histCagrBadge').textContent = `${cagr.toFixed(1)}%`;
-  document.getElementById('goalCustomRate').value = cagr;
+  document.getElementById('goalCustomRate').value = cagr.toFixed(1);
   document.getElementById('goalRateSlider').value = Math.min(20, Math.max(0.5, cagr));
   calcGoalSim();
 }
@@ -691,26 +792,22 @@ function setGoalInput(id, val) {
   calcGoalSim();
 }
 
-// 目標額と毎月積立額から「何ヶ月かかるか」を計算
 function computeMonthsToTarget(targetMan, initMan, monthlyMan, annualRatePct) {
   if (initMan >= targetMan) return 0;
   if (monthlyMan <= 0 && annualRatePct <= 0) return Infinity;
   const r = (annualRatePct / 100) / 12;
   let bal = initMan;
-  for (let m = 1; m <= 1200; m++) { // 最大100年
+  for (let m = 1; m <= 1200; m++) {
     bal = bal * (1 + r) + monthlyMan;
     if (bal >= targetMan) return m;
   }
   return Infinity;
 }
 
-// 目標額と期間(年)から「毎月いくら積立が必要か」を計算
 function computeRequiredMonthly(targetMan, initMan, years, annualRatePct) {
   const months = Math.max(1, Math.round(years * 12));
   const r = (annualRatePct / 100) / 12;
-  if (r === 0) {
-    return Math.max(0, (targetMan - initMan) / months);
-  }
+  if (r === 0) return Math.max(0, (targetMan - initMan) / months);
   const compoundFactor = Math.pow(1 + r, months);
   const futureInit = initMan * compoundFactor;
   if (futureInit >= targetMan) return 0;
@@ -730,16 +827,34 @@ function formatMonthsToYearMonth(months) {
 function calcGoalSim() {
   const key = document.getElementById('goalAssetSelect').value;
   const asset = ASSET_DATA[key];
-  const histRate = asset.cagr;
+  const spRate = 8.0; // S&P500単独の長期比較基準年率
   const customRate = Math.max(0, parseFloat(document.getElementById('goalCustomRate').value) || 0);
+  const showSpCompare = document.getElementById('goalCompareSpToggle').checked;
 
-  const targetMan = Math.max(1, parseFloat(document.getElementById('goalTargetMan').value) || 3000);
+  const targetMan = Math.max(1, parseFloat(document.getElementById('goalTargetMan').value) || 5000);
   const initMan = Math.max(0, parseFloat(document.getElementById('goalInitialMan').value) || 0);
 
   document.getElementById('goalResultAssetBadge').textContent = asset.name;
   document.getElementById('goalResultRateBadge').textContent = `想定利回り 年率 ${customRate.toFixed(1)}%`;
 
-  // ★「運用額〇〇万円で年利〇%の場合、何もしなくても年間〇〇万円増えていく」の更新
+  // 配分内訳バッジ
+  const splitBadge = document.getElementById('goalSplitBadge');
+  if (goalSubMode === 'years') {
+    const mPmt = Math.max(0, parseFloat(document.getElementById('goalMonthlyMan').value) || 0);
+    if (key === 'sp_tqqq_50') {
+      splitBadge.style.display = 'inline-block';
+      splitBadge.textContent = `内訳：S&P500 ${(mPmt / 2).toFixed(1)}万円 ＋ TQQQ ${(mPmt / 2).toFixed(1)}万円`;
+    } else if (key === 'sp_tqqq_70_30') {
+      splitBadge.style.display = 'inline-block';
+      splitBadge.textContent = `内訳：S&P500 ${(mPmt * 0.7).toFixed(1)}万円 ＋ TQQQ ${(mPmt * 0.3).toFixed(1)}万円`;
+    } else {
+      splitBadge.style.display = 'none';
+    }
+  } else {
+    splitBadge.style.display = 'none';
+  }
+
+  // 運用益ペース表示
   const annualYieldMan = targetMan * (customRate / 100);
   const monthlyYieldMan = annualYieldMan / 12;
   const passiveMainEl = document.getElementById('goalPassiveMainText');
@@ -747,15 +862,14 @@ function calcGoalSim() {
 
   if (passiveMainEl) {
     passiveMainEl.innerHTML =
-      `運用額 <span class="text-emerald-700 font-black">${formatMoney(targetMan)}</span> で年利 <span class="text-emerald-700 font-black">${customRate.toFixed(1)}%</span> の場合、何もしなくても<span class="underline decoration-emerald-500 decoration-2 underline-offset-2 font-black text-emerald-700">年間 約${formatYieldAmount(annualYieldMan)}</span>（月換算 約${formatYieldAmount(monthlyYieldMan)}）増えていく計算になります✨`;
+      `目標の運用額 <span class="text-emerald-700 font-black">${formatMoney(targetMan)}</span> に到達後、年利 <span class="text-emerald-700 font-black">${customRate.toFixed(1)}%</span> で推移すれば、<span class="underline decoration-emerald-500 decoration-2 underline-offset-2 font-black text-emerald-700">年間 約${formatYieldAmount(annualYieldMan)}</span>（月換算 約${formatYieldAmount(monthlyYieldMan)}）のペースで資産が増えていきます✨`;
   }
   if (passiveSubEl) {
     if (initMan > 0 && initMan !== targetMan) {
       const initAnnualYieldMan = initMan * (customRate / 100);
-      const initMonthlyYieldMan = initAnnualYieldMan / 12;
       passiveSubEl.style.display = 'block';
       passiveSubEl.textContent =
-        `※現在の初期投資額（${formatMoney(initMan)}）だけでも、年利${customRate.toFixed(1)}%なら何もしなくても年間 約${formatYieldAmount(initAnnualYieldMan)}（月約${formatYieldAmount(initMonthlyYieldMan)}）増えていきます`;
+        `※現在の初期投資額（${formatMoney(initMan)}）だけでも、年利${customRate.toFixed(1)}%なら年間 約${formatYieldAmount(initAnnualYieldMan)} 増える計算です`;
     } else {
       passiveSubEl.style.display = 'none';
     }
@@ -765,10 +879,9 @@ function calcGoalSim() {
   let simMonthlyMan = 0;
 
   if (goalSubMode === 'years') {
-    // ① 到達年数を逆算モード
     simMonthlyMan = Math.max(0, parseFloat(document.getElementById('goalMonthlyMan').value) || 0);
     const monthsCustom = computeMonthsToTarget(targetMan, initMan, simMonthlyMan, customRate);
-    const monthsHist = computeMonthsToTarget(targetMan, initMan, simMonthlyMan, histRate);
+    const monthsSp = computeMonthsToTarget(targetMan, initMan, simMonthlyMan, spRate);
 
     simMonths = isFinite(monthsCustom) ? Math.max(12, monthsCustom) : 360;
 
@@ -793,23 +906,22 @@ function calcGoalSim() {
       document.getElementById('goalCardProfit').textContent = "-";
     }
 
-    document.getElementById('goalCardCompareTitle').textContent = `過去平均(${histRate.toFixed(1)}%)なら`;
-    document.getElementById('goalCardCompareVal').textContent = formatMonthsToYearMonth(monthsHist);
-    if (isFinite(monthsCustom) && isFinite(monthsHist)) {
-      const diffM = monthsCustom - monthsHist;
+    document.getElementById('goalCardCompareTitle').textContent = `S&P500単独(${spRate.toFixed(1)}%)なら`;
+    document.getElementById('goalCardCompareVal').textContent = formatMonthsToYearMonth(monthsSp);
+    if (isFinite(monthsCustom) && isFinite(monthsSp)) {
+      const diffM = monthsSp - monthsCustom;
       document.getElementById('goalCardCompareSub').textContent =
-        diffM === 0 ? `過去平均と同じペース` : (diffM > 0 ? `過去平均より +${formatMonthsToYearMonth(diffM)} かかる` : `過去平均より ${formatMonthsToYearMonth(-diffM)} 早い`);
+        diffM === 0 ? `S&P500単独と同じ期間` : (diffM > 0 ? `S&P単独より ${formatMonthsToYearMonth(diffM)} 短縮！` : `S&P単独より ${formatMonthsToYearMonth(-diffM)} 長い`);
     } else {
-      document.getElementById('goalCardCompareSub').textContent = `利回りによる期間差`;
+      document.getElementById('goalCardCompareSub').textContent = `利回り差の比較`;
     }
 
   } else {
-    // ② 毎月の必要積立額を逆算モード
-    const targetYears = Math.max(1, parseFloat(document.getElementById('goalTargetYears').value) || 20);
+    const targetYears = Math.max(1, parseFloat(document.getElementById('goalTargetYears').value) || 15);
     simMonths = Math.round(targetYears * 12);
 
     const reqMonthlyCustom = computeRequiredMonthly(targetMan, initMan, targetYears, customRate);
-    const reqMonthlyHist = computeRequiredMonthly(targetMan, initMan, targetYears, histRate);
+    const reqMonthlySp = computeRequiredMonthly(targetMan, initMan, targetYears, spRate);
     simMonthlyMan = reqMonthlyCustom;
 
     document.getElementById('goalMainAnswerLabel').textContent =
@@ -828,17 +940,18 @@ function calcGoalSim() {
     const pct = totalPrincipal > 0 ? Math.round((totalProfit / totalPrincipal) * 100) : 0;
     document.getElementById('goalCardProfitSub').textContent = `元本対比 +${pct}%`;
 
-    document.getElementById('goalCardCompareTitle').textContent = `過去平均(${histRate.toFixed(1)}%)なら`;
-    document.getElementById('goalCardCompareVal').textContent = `月 ${formatDetailedMonthly(reqMonthlyHist)}`;
-    const diffMan = reqMonthlyCustom - reqMonthlyHist;
+    document.getElementById('goalCardCompareTitle').textContent = `S&P500単独(${spRate.toFixed(1)}%)なら`;
+    document.getElementById('goalCardCompareVal').textContent = `月 ${formatDetailedMonthly(reqMonthlySp)}`;
+    const diffMan = reqMonthlySp - reqMonthlyCustom;
     document.getElementById('goalCardCompareSub').textContent =
-      Math.abs(diffMan) < 0.01 ? `過去平均と同額` : (diffMan > 0 ? `過去平均より 月+${formatDetailedMonthly(diffMan)} 必要` : `過去平均より 月-${formatDetailedMonthly(-diffMan)} 少なくてOK`);
+      Math.abs(diffMan) < 0.01 ? `S&P500単独と同額` : (diffMan > 0 ? `S&P単独より 月${formatDetailedMonthly(diffMan)} 節約！` : `S&P単独より 月+${formatDetailedMonthly(-diffMan)} 必要`);
   }
 
-  drawGoalChart(targetMan, initMan, simMonthlyMan, simMonths, customRate, histRate);
+  document.getElementById('legendSpCompare').style.display = showSpCompare ? 'flex' : 'none';
+  drawGoalChart(targetMan, initMan, simMonthlyMan, simMonths, customRate, spRate, showSpCompare);
 }
 
-function drawGoalChart(targetMan, initMan, monthlyMan, totalMonths, customRate, histRate) {
+function drawGoalChart(targetMan, initMan, monthlyMan, totalMonths, customRate, spRate, showSpCompare) {
   const gCanvas = document.getElementById('goalCanvas');
   if (!gCanvas) return;
   const gCtx = gCanvas.getContext('2d');
@@ -862,31 +975,30 @@ function drawGoalChart(targetMan, initMan, monthlyMan, totalMonths, customRate, 
   const plotH = H - padT - padB;
 
   const rCustom = (customRate / 100) / 12;
-  const rHist = (histRate / 100) / 12;
+  const rSp = (spRate / 100) / 12;
 
   const seriesCustom = [];
-  const seriesHist = [];
+  const seriesSp = [];
   const seriesPrincipal = [];
 
   let balCustom = initMan;
-  let balHist = initMan;
+  let balSp = initMan;
   let balPrin = initMan;
 
   for (let m = 0; m <= totalMonths; m++) {
     if (m > 0) {
       balCustom = balCustom * (1 + rCustom) + monthlyMan;
-      balHist = balHist * (1 + rHist) + monthlyMan;
+      balSp = balSp * (1 + rSp) + monthlyMan;
       balPrin += monthlyMan;
     }
     seriesCustom.push(balCustom);
-    seriesHist.push(balHist);
+    seriesSp.push(balSp);
     seriesPrincipal.push(balPrin);
   }
 
   let maxVal = Math.max(targetMan * 1.15, seriesCustom[seriesCustom.length - 1] * 1.1);
-  if (Math.abs(customRate - histRate) > 0.05) {
-    // 過去平均が極端に大きくなりすぎてメイン線が見えなくならないよう上限キャップ
-    maxVal = Math.max(maxVal, Math.min(targetMan * 2.2, seriesHist[seriesHist.length - 1] * 1.05));
+  if (showSpCompare) {
+    maxVal = Math.max(maxVal, seriesSp[seriesSp.length - 1] * 1.05);
   }
 
   const getX = (m) => padL + (m / Math.max(1, totalMonths)) * plotW;
@@ -934,35 +1046,37 @@ function drawGoalChart(targetMan, initMan, monthlyMan, totalMonths, customRate, 
   // 目標額の水平破線
   const targetY = getY(targetMan);
   gCtx.save();
-  gCtx.strokeStyle = '#dc2626';
+  gCtx.strokeStyle = '#64748b';
   gCtx.lineWidth = 1.5;
   gCtx.setLineDash([4, 4]);
   gCtx.beginPath();
   gCtx.moveTo(padL, targetY);
   gCtx.lineTo(W - padR, targetY);
   gCtx.stroke();
-  gCtx.fillStyle = '#dc2626';
+  gCtx.fillStyle = '#334155';
   gCtx.font = 'bold 11px "Noto Sans JP", sans-serif';
   gCtx.textAlign = 'left';
   gCtx.fillText(`🎯 目標: ${formatMoney(targetMan)}`, padL + 6, Math.max(padT + 12, targetY - 5));
   gCtx.restore();
 
-  // 過去平均利回りライン（オレンジ破線）
-  gCtx.save();
-  gCtx.strokeStyle = '#f59e0b';
-  gCtx.lineWidth = 2.2;
-  gCtx.setLineDash([5, 5]);
-  gCtx.beginPath();
-  for (let m = 0; m <= totalMonths; m++) {
-    const x = getX(m);
-    const y = getY(seriesHist[m]);
-    if (m === 0) gCtx.moveTo(x, y);
-    else gCtx.lineTo(x, y);
+  // S&P500単独比較ライン（赤破線）
+  if (showSpCompare) {
+    gCtx.save();
+    gCtx.strokeStyle = '#e11d48';
+    gCtx.lineWidth = 2.2;
+    gCtx.setLineDash([5, 5]);
+    gCtx.beginPath();
+    for (let m = 0; m <= totalMonths; m++) {
+      const x = getX(m);
+      const y = getY(seriesSp[m]);
+      if (m === 0) gCtx.moveTo(x, y);
+      else gCtx.lineTo(x, y);
+    }
+    gCtx.stroke();
+    gCtx.restore();
   }
-  gCtx.stroke();
-  gCtx.restore();
 
-  // 想定利回りメインライン（青実線）
+  // 選択戦略メインライン（青実線）
   gCtx.strokeStyle = '#2563eb';
   gCtx.lineWidth = 3;
   gCtx.beginPath();
@@ -997,9 +1111,9 @@ function drawGoalChart(targetMan, initMan, monthlyMan, totalMonths, customRate, 
 }
 
 // ==========================================
-// 4. 過去比較シミュレーター側の処理（v3継承）
+// 4. 過去比較シミュレーター側の処理（リバランス計算対応）
 // ==========================================
-let investMode = 'lump';
+let investMode = 'dca';
 let timeline = [];
 let currentIndex = 0;
 let timerId = null;
@@ -1020,17 +1134,19 @@ function init() {
   Object.keys(ASSET_DATA).forEach(key => {
     assetASelect.add(new Option(ASSET_DATA[key].fullName, key));
     assetBSelect.add(new Option(ASSET_DATA[key].fullName, key));
-    goalAssetSelect.add(new Option(`${ASSET_DATA[key].fullName} [過去平均: 年${ASSET_DATA[key].cagr.toFixed(1)}%]`, key));
+    goalAssetSelect.add(new Option(`${ASSET_DATA[key].fullName} [基準年率: ${ASSET_DATA[key].cagr.toFixed(1)}%]`, key));
   });
-  assetASelect.value = 'nikkei';
-  assetBSelect.value = 'sp500';
-  goalAssetSelect.value = 'sp500';
+
+  // デフォルトを「S&P500 vs S&P500+TQQQ(50:50リバランス)」に設定
+  assetASelect.value = 'sp500';
+  assetBSelect.value = 'sp_tqqq_50';
+  goalAssetSelect.value = 'sp_tqqq_50';
 
   for (let y = 1989; y <= 2024; y++) {
     const label = HISTORICAL_EVENTS[y] ? `${y}年12月 (${HISTORICAL_EVENTS[y].slice(0, 12)}...)` : `${y}年12月`;
     startYearSelect.add(new Option(label, y));
   }
-  startYearSelect.value = 1989;
+  startYearSelect.value = 2000;
 
   [assetASelect, assetBSelect, startYearSelect, initialAmountInput].forEach(el => {
     el.addEventListener('change', () => {
@@ -1065,6 +1181,35 @@ function init() {
   onGoalAssetChange();
 }
 
+function applyHistPreset(keyA, keyB, mode, amount, year) {
+  stopPlay();
+  assetASelect.value = keyA;
+  assetBSelect.value = keyB;
+  startYearSelect.value = year;
+  investMode = mode;
+
+  const lumpBtn = document.getElementById('modeLumpBtn');
+  const dcaBtn = document.getElementById('modeDcaBtn');
+  const label = document.getElementById('amountInputLabel');
+
+  if (mode === 'lump') {
+    lumpBtn.className = 'px-4 py-1.5 rounded-lg text-xs md:text-sm font-black transition bg-amber-500 text-slate-950 shadow';
+    dcaBtn.className = 'px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold transition text-slate-400 hover:text-white';
+    label.textContent = '💰 初期投資額（一括）';
+  } else {
+    dcaBtn.className = 'px-4 py-1.5 rounded-lg text-xs md:text-sm font-black transition bg-amber-500 text-slate-950 shadow';
+    lumpBtn.className = 'px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold transition text-slate-400 hover:text-white';
+    label.textContent = '📈 毎月の積立額';
+  }
+
+  renderAmountPresets();
+  initialAmountInput.value = amount;
+  buildTimeline();
+  currentIndex = 0;
+  seekBar.value = 0;
+  renderFrame();
+}
+
 function setInvestMode(mode) {
   investMode = mode;
   stopPlay();
@@ -1083,7 +1228,7 @@ function setInvestMode(mode) {
     dcaBtn.className = 'px-4 py-1.5 rounded-lg text-xs md:text-sm font-black transition bg-amber-500 text-slate-950 shadow';
     lumpBtn.className = 'px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold transition text-slate-400 hover:text-white';
     label.textContent = '📈 毎月の積立額';
-    initialAmountInput.value = 3;
+    initialAmountInput.value = 15;
     initialAmountInput.step = 1;
   }
 
@@ -1099,7 +1244,6 @@ function renderAmountPresets() {
   if (investMode === 'lump') {
     container.innerHTML = `
       <span class="text-xs text-slate-400 mr-1">一括額:</span>
-      <button onclick="setAmount(50)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">50万円</button>
       <button onclick="setAmount(100)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">100万円</button>
       <button onclick="setAmount(300)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">300万円</button>
       <button onclick="setAmount(1000)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">1,000万円</button>
@@ -1107,11 +1251,10 @@ function renderAmountPresets() {
   } else {
     container.innerHTML = `
       <span class="text-xs text-slate-400 mr-1">積立額:</span>
-      <button onclick="setAmount(1)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">月1万円</button>
-      <button onclick="setAmount(3)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">月3万円</button>
-      <button onclick="setAmount(5)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">月5万円</button>
-      <button onclick="setAmount(10)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">月10万円</button>
-      <button onclick="setAmount(30)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">月30万円</button>
+      <button onclick="setAmount(5)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">月5万</button>
+      <button onclick="setAmount(10)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">月10万</button>
+      <button onclick="setAmount(15)" class="text-xs bg-amber-500/30 border border-amber-400 text-amber-200 hover:bg-amber-500/40 px-2.5 py-1 rounded font-bold transition">月15万(7.5万ずつ)</button>
+      <button onclick="setAmount(30)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">月30万</button>
     `;
   }
 }
@@ -1139,72 +1282,116 @@ function seededNoise(seed) {
   return x - Math.floor(x);
 }
 
+// 単一銘柄の月次評価額シリーズを生成（リバランス戦略の場合は毎年12月に比率リセット）
+function simulateSeries(assetKey, startIdx, inputMan) {
+  const asset = ASSET_DATA[assetKey];
+  const results = [];
+
+  if (!asset.isRebalanceStrategy) {
+    // 通常の単独銘柄
+    const raw = asset.values.slice(startIdx);
+    const startVal = raw[0];
+    let units = inputMan / 1.0;
+    let totalPrincipal = inputMan;
+    results.push({ val: inputMan, principal: totalPrincipal });
+
+    for (let i = 0; i < raw.length - 1; i++) {
+      const y = YEARS[startIdx] + i + 1;
+      const prev = raw[i] / startVal;
+      const next = raw[i + 1] / startVal;
+      for (let m = 1; m <= 12; m++) {
+        const t = m / 12;
+        const wave = (m === 12) ? 0 : (seededNoise(y * 100 + m * 7 + (assetKey === 'tqqq' ? 9 : 1)) - 0.5) * (assetKey === 'tqqq' ? 0.12 : 0.045);
+        const price = Math.max(0.01, (prev + (next - prev) * t) * (1 + wave));
+        if (investMode === 'dca') {
+          totalPrincipal += inputMan;
+          units += inputMan / price;
+        }
+        results.push({ val: units * price, principal: totalPrincipal });
+      }
+    }
+    return results;
+  } else {
+    // リバランス戦略（例：S&P500 50% ＋ TQQQ 50% を毎年12月末にリバランス）
+    const wA = asset.weightA;
+    const wB = 1 - wA;
+    const rawA = ASSET_DATA[asset.baseA].values.slice(startIdx);
+    const rawB = ASSET_DATA[asset.baseB].values.slice(startIdx);
+    const startA = rawA[0];
+    const startB = rawB[0];
+
+    let unitsA = (inputMan * wA) / 1.0;
+    let unitsB = (inputMan * wB) / 1.0;
+    let totalPrincipal = inputMan;
+    results.push({ val: inputMan, principal: totalPrincipal });
+
+    for (let i = 0; i < rawA.length - 1; i++) {
+      const y = YEARS[startIdx] + i + 1;
+      const prevA = rawA[i] / startA;
+      const nextA = rawA[i + 1] / startA;
+      const prevB = rawB[i] / startB;
+      const nextB = rawB[i + 1] / startB;
+
+      for (let m = 1; m <= 12; m++) {
+        const t = m / 12;
+        const waveA = (m === 12) ? 0 : (seededNoise(y * 100 + m * 7 + 1) - 0.5) * 0.045;
+        const waveB = (m === 12) ? 0 : (seededNoise(y * 100 + m * 7 + 9) - 0.5) * 0.12;
+
+        const priceA = Math.max(0.01, (prevA + (nextA - prevA) * t) * (1 + waveA));
+        const priceB = Math.max(0.01, (prevB + (nextB - prevB) * t) * (1 + waveB));
+
+        if (investMode === 'dca') {
+          totalPrincipal += inputMan;
+          // 毎月の積立額は目標比率（wA : wB）で買い付け
+          unitsA += (inputMan * wA) / priceA;
+          unitsB += (inputMan * wB) / priceB;
+        }
+
+        let valA = unitsA * priceA;
+        let valB = unitsB * priceB;
+        let totalVal = valA + valB;
+
+        // 毎年12月末に評価額比率を wA : wB にリバランス実行
+        if (m === 12) {
+          unitsA = (totalVal * wA) / priceA;
+          unitsB = (totalVal * wB) / priceB;
+        }
+
+        results.push({ val: totalVal, principal: totalPrincipal });
+      }
+    }
+    return results;
+  }
+}
+
 function buildTimeline() {
   const keyA = assetASelect.value;
   const keyB = assetBSelect.value;
   const startY = parseInt(startYearSelect.value, 10);
-  const inputMan = parseFloat(initialAmountInput.value) || (investMode === 'lump' ? 100 : 3);
-
+  const inputMan = parseFloat(initialAmountInput.value) || (investMode === 'lump' ? 100 : 15);
   const startIdx = YEARS.indexOf(startY);
-  const rawA = ASSET_DATA[keyA].values.slice(startIdx);
-  const rawB = ASSET_DATA[keyB].values.slice(startIdx);
-  const startValA = rawA[0];
-  const startValB = rawB[0];
+
+  const seriesA = simulateSeries(keyA, startIdx, inputMan);
+  const seriesB = simulateSeries(keyB, startIdx, inputMan);
 
   timeline = [];
+  for (let idx = 0; idx < seriesA.length; idx++) {
+    const yr = startY + Math.floor((idx + 11) / 12);
+    const mo = idx === 0 ? 12 : ((idx - 1) % 12) + 1;
+    const prin = seriesA[idx].principal;
+    const vA = seriesA[idx].val;
+    const vB = seriesB[idx].val;
 
-  let unitsA = inputMan / 1.0;
-  let unitsB = inputMan / 1.0;
-  let totalPrincipal = inputMan;
-
-  timeline.push({
-    year: startY,
-    month: 12,
-    elapsedMonths: 0,
-    principal: totalPrincipal,
-    valA: inputMan,
-    valB: inputMan,
-    multA: 1.0,
-    multB: 1.0
-  });
-
-  let elapsed = 0;
-  for (let i = 0; i < rawA.length - 1; i++) {
-    const y = startY + i + 1;
-    const prevA = rawA[i] / startValA;
-    const nextA = rawA[i + 1] / startValA;
-    const prevB = rawB[i] / startValB;
-    const nextB = rawB[i + 1] / startValB;
-
-    for (let m = 1; m <= 12; m++) {
-      elapsed++;
-      const t = m / 12;
-      const waveA = (m === 12) ? 0 : (seededNoise(y * 100 + m * 7 + 1) - 0.5) * 0.045;
-      const waveB = (m === 12) ? 0 : (seededNoise(y * 100 + m * 13 + 2) - 0.5) * 0.045;
-
-      const priceA = Math.max(0.05, (prevA + (nextA - prevA) * t) * (1 + waveA));
-      const priceB = Math.max(0.05, (prevB + (nextB - prevB) * t) * (1 + waveB));
-
-      if (investMode === 'dca') {
-        totalPrincipal += inputMan;
-        unitsA += inputMan / priceA;
-        unitsB += inputMan / priceB;
-      }
-
-      const valA = unitsA * priceA;
-      const valB = unitsB * priceB;
-
-      timeline.push({
-        year: y,
-        month: m,
-        elapsedMonths: elapsed,
-        principal: totalPrincipal,
-        valA: valA,
-        valB: valB,
-        multA: valA / totalPrincipal,
-        multB: valB / totalPrincipal
-      });
-    }
+    timeline.push({
+      year: yr,
+      month: mo,
+      elapsedMonths: idx,
+      principal: prin,
+      valA: vA,
+      valB: vB,
+      multA: vA / prin,
+      multB: vB / prin
+    });
   }
 
   seekBar.max = timeline.length - 1;
@@ -1213,26 +1400,29 @@ function buildTimeline() {
   const nameB = ASSET_DATA[keyB].name;
   document.getElementById('badgeVs').textContent = `${nameA} vs ${nameB}`;
 
+  const hasRebalance = ASSET_DATA[keyA].isRebalanceStrategy || ASSET_DATA[keyB].isRebalanceStrategy;
+  document.getElementById('rebalanceStrategyBanner').style.display = hasRebalance ? 'flex' : 'none';
+
   const modeBadge = document.getElementById('modeBadge');
   const formattedInput = formatMoney(inputMan);
   
   if (investMode === 'lump') {
     modeBadge.textContent = '一括投資';
     modeBadge.className = 'bg-emerald-700 text-white text-xs font-bold px-2 py-0.5 rounded';
-    document.getElementById('subCondition').textContent = `${startY}年12月末に一括投資・配当再投資・手数料考慮せず`;
+    document.getElementById('subCondition').textContent = `${startY}年12月末に一括投資・${hasRebalance ? '年1回リバランス・' : ''}減価＆コスト反映済`;
     document.getElementById('mainHeadline').innerHTML = 
       `${startY === 1989 ? 'バブル最高値の年に' : startY + '年末に'}${formattedInput}一括で買っていたら<br class="md:hidden">${nameA} vs ${nameB}、その後どうなった？`;
   } else {
     modeBadge.textContent = '毎月積立';
     modeBadge.className = 'bg-blue-700 text-white text-xs font-bold px-2 py-0.5 rounded';
-    document.getElementById('subCondition').textContent = `${startY}年12月末から毎月${formattedInput}積立・配当再投資・手数料考慮せず`;
+    document.getElementById('subCondition').textContent = `${startY}年12月末から毎月${formattedInput}積立・${hasRebalance ? '年1回リバランス・' : ''}減価＆コスト反映済`;
     document.getElementById('mainHeadline').innerHTML = 
       `${startY === 1989 ? 'バブル最高値の年から' : startY + '年末から'}毎月${formattedInput}積み立てていたら<br class="md:hidden">${nameA} vs ${nameB}、その後どうなった？`;
   }
 
   document.getElementById('cardNameA').textContent = nameA;
   document.getElementById('cardNameB').textContent = nameB;
-  document.getElementById('statusTitleA').textContent = `${nameA}の状態`;
+  document.getElementById('statusTitleB').textContent = `${nameB}の状態`;
 }
 
 function renderFrame() {
@@ -1267,18 +1457,18 @@ function renderFrame() {
   const mos = pt.elapsedMonths % 12;
   document.getElementById('elapsedLabel').textContent = `${yrs}年${mos}か月 (${formatMoney(principal)})`;
 
-  const pctA = Math.round((pt.multA - 1) * 100);
-  const statusTextA = document.getElementById('statusTextA');
-  const statusBoxA = document.getElementById('statusBoxA');
+  const pctB = Math.round((pt.multB - 1) * 100);
+  const statusTextB = document.getElementById('statusTextB');
+  const statusBoxB = document.getElementById('statusBoxB');
   if (pt.elapsedMonths === 0) {
-    statusTextA.textContent = '運用スタート（±0%）';
-    statusBoxA.className = 'border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-slate-50';
-  } else if (pctA < 0) {
-    statusTextA.textContent = `元本割れ中...（${pctA}%）`;
-    statusBoxA.className = 'border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-emerald-50/80';
+    statusTextB.textContent = '運用スタート（±0%）';
+    statusBoxB.className = 'border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-slate-50';
+  } else if (pctB < 0) {
+    statusTextB.textContent = `耐えどき・仕込み期（${pctB}%）`;
+    statusBoxB.className = 'border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-amber-50/90';
   } else {
-    statusTextA.textContent = `プラス推移！（+${pctA}%）`;
-    statusBoxA.className = 'border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-rose-50/80';
+    statusTextB.textContent = `プラス推移！（+${pctB}%）`;
+    statusBoxB.className = 'border-[2px] border-slate-800 rounded-xl p-2.5 md:p-3 bg-blue-50/80';
   }
 
   document.getElementById('eventLabel').textContent = HISTORICAL_EVENTS[pt.year] || `${pt.year}年の相場推移`;
@@ -1338,7 +1528,7 @@ function drawChart(nameA, nameB) {
 
   if (slice.length >= 1) {
     ctx.save();
-    ctx.fillStyle = 'rgba(244, 63, 94, 0.08)';
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.08)';
     ctx.beginPath();
     ctx.moveTo(getX(0), padT + plotH);
     for (let i = 0; i < slice.length; i++) {
@@ -1453,6 +1643,13 @@ function resetSim() {
   stopPlay();
   currentIndex = 0;
   seekBar.value = 0;
+  renderFrame();
+}
+
+function jumpToEnd() {
+  stopPlay();
+  currentIndex = timeline.length - 1;
+  seekBar.value = currentIndex;
   renderFrame();
 }
 
