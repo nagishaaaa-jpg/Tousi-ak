@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AKITO ASSET SIMULATOR v5 | 過去比較＆未来逆算シミュレーター（TQQQリバランス対応）</title>
+  <title>AKITO ASSET SIMULATOR v7 | 過去比較＆未来逆算（S&P500/QQQ × SPXL/TQQQ カスタム比率リバランス）</title>
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -40,10 +40,10 @@
   <div class="w-full max-w-4xl mb-4">
     <div class="flex flex-wrap items-center justify-between gap-2 mb-3 px-1">
       <div class="flex items-center gap-2">
-        <span class="bg-amber-500 text-slate-950 font-black px-2.5 py-0.5 rounded text-xs tracking-wider">AKITO EDITION v5</span>
-        <h1 class="text-white font-bold text-base md:text-lg">新NISA ＆ レバレッジ戦略シミュレーター</h1>
+        <span class="bg-amber-500 text-slate-950 font-black px-2.5 py-0.5 rounded text-xs tracking-wider">AKITO EDITION v7</span>
+        <h1 class="text-white font-bold text-base md:text-lg">新NISA ＆ 3倍レバレッジ戦略シミュレーター</h1>
       </div>
-      <div class="text-xs text-slate-400">過去検証 ＆ 未来逆算（TQQQ 50:50リバランス対応）</div>
+      <div class="text-xs text-slate-400">S&P500 / QQQ × SPXL / TQQQ カスタム比率リバランス対応</div>
     </div>
 
     <!-- メインタブ（過去比較 vs 未来逆算） -->
@@ -78,17 +78,17 @@
       <!-- 戦略ワンタップ切替バー -->
       <div class="bg-slate-900/90 border border-amber-500/40 rounded-xl p-2.5 mb-4 flex flex-wrap items-center justify-between gap-2">
         <div class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-          <span>⚡</span> <span>注目の比較プリセット:</span>
+          <span>⚡</span> <span>3大リバランス比較プリセット:</span>
         </div>
         <div class="flex flex-wrap gap-1.5">
-          <button onclick="applyHistPreset('sp500', 'sp_tqqq_50', 'dca', 15, 2000)" class="text-xs bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-2.5 py-1 rounded-lg transition shadow">
-            🔥 S&P500 vs 50:50リバランス (ITバブル2000〜月15万)
+          <button onclick="applyHistPreset('sp_spxl', 'sp_tqqq', 'dca', 15, 2000, 50)" class="text-xs bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-2.5 py-1 rounded-lg transition shadow">
+            🛡️ S&P+SPXL vs S&P+TQQQ (2000〜)
           </button>
-          <button onclick="applyHistPreset('sp500', 'sp_tqqq_50', 'dca', 15, 2010)" class="text-xs bg-slate-700 hover:bg-slate-600 text-white font-bold px-2.5 py-1 rounded-lg transition">
-            🚀 S&P500 vs 50:50リバランス (2010〜月15万)
+          <button onclick="applyHistPreset('sp_tqqq', 'qqq_tqqq', 'dca', 15, 2000, 50)" class="text-xs bg-slate-700 hover:bg-slate-600 text-white font-bold px-2.5 py-1 rounded-lg transition">
+            🔥 S&P+TQQQ vs QQQ+TQQQ (2000〜)
           </button>
-          <button onclick="applyHistPreset('nikkei', 'sp500', 'lump', 100, 1989)" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold px-2.5 py-1 rounded-lg transition">
-            📊 日経平均 vs S&P500 (1989〜)
+          <button onclick="applyHistPreset('sp500', 'sp_spxl', 'dca', 15, 2000, 50)" class="text-xs bg-slate-700 hover:bg-slate-600 text-emerald-300 font-bold px-2.5 py-1 rounded-lg transition">
+            ⚖️ S&P500 vs S&P+SPXL (王道比較)
           </button>
         </div>
       </div>
@@ -112,6 +112,28 @@
           <div class="flex items-center bg-slate-900 border border-slate-600 rounded-lg px-3 py-2">
             <input id="initialAmount" type="number" value="15" min="1" max="10000" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
             <span class="text-xs text-slate-400 ml-1">万円</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- カスタム比率スライダー（リバランス戦略選択時のみ表示） -->
+      <div id="histRatioControlBox" class="bg-slate-900/95 border border-blue-500/50 rounded-xl p-3 mb-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+          <div class="text-xs font-bold text-blue-300 flex items-center gap-1.5">
+            <span>🎚️</span> <span>リバランス戦略の配分比率カスタマイズ（3倍レバ側の割合）</span>
+          </div>
+          <div id="histRatioDisplayBadge" class="text-xs font-black bg-blue-600 text-white px-2.5 py-0.5 rounded">
+            土台(1倍) 50% ： 3倍レバ 50% （実効 2.00倍）
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <input id="histLevRatioSlider" type="range" min="10" max="90" step="5" value="50" oninput="onHistRatioChange(this.value)" class="flex-1 min-w-[160px] range-amber cursor-pointer">
+          <div class="flex flex-wrap gap-1">
+            <button onclick="onHistRatioChange(30)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded font-bold">70 : 30</button>
+            <button onclick="onHistRatioChange(40)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded font-bold">60 : 40</button>
+            <button onclick="onHistRatioChange(50)" class="text-[11px] bg-amber-500 text-slate-950 px-2 py-1 rounded font-black">50 : 50</button>
+            <button onclick="onHistRatioChange(60)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded font-bold">40 : 60</button>
+            <button onclick="onHistRatioChange(70)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded font-bold">30 : 70</button>
           </div>
         </div>
       </div>
@@ -156,22 +178,22 @@
     <div class="w-full sim-card p-4 md:p-7">
       <div class="border-b border-slate-200 pb-3 mb-4">
         <div class="flex flex-wrap items-center gap-2 mb-1.5">
-          <span id="badgeVs" class="bg-slate-900 text-amber-400 text-xs font-bold px-2.5 py-1 rounded">S&P500 vs S&P+TQQQ(50:50)</span>
+          <span id="badgeVs" class="bg-slate-900 text-amber-400 text-xs font-bold px-2.5 py-1 rounded">S&P50:SPXL50 vs S&P50:TQQQ50</span>
           <span id="modeBadge" class="bg-blue-700 text-white text-xs font-bold px-2 py-0.5 rounded">毎月積立</span>
           <span id="subCondition" class="text-xs text-slate-500 font-medium">2000年12月末から毎月15万円積立・年1回リバランス・減価＆コスト反映済</span>
         </div>
         <h2 id="mainHeadline" class="text-lg md:text-2xl font-black text-slate-900 tracking-tight leading-snug">
           2000年末から毎月15万円積み立てていたら<br class="md:hidden">
-          S&P500 vs S&P+TQQQ(50:50)、その後どうなった？
+          S&P50:SPXL50 vs S&P50:TQQQ50、その後どうなった？
         </h2>
       </div>
 
       <!-- リバランス戦略の解説バナー（該当銘柄選択時のみ表示） -->
       <div id="rebalanceStrategyBanner" class="mb-4 bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-slate-700 flex items-start gap-2">
         <span class="text-base leading-none mt-0.5">⚖️</span>
-        <div>
-          <span class="font-black text-blue-900">S&P500 50% ＋ TQQQ 50% リバランス戦略（シャノンの悪魔応用）：</span>
-          TQQQは日々の3倍レバレッジの減価（ボラティリティ・ドラッグ）・金利コスト・経費率を織り込んだ円換算指数で計算。毎年12月末に評価額が<strong>50%：50%</strong>になるよう自動リバランス（暴落したTQQQをS&P500の利益で買い増し、急騰時は利確）を行います。
+        <div id="rebalanceBannerText">
+          <span class="font-black text-blue-900">カスタム比率リバランス戦略（シャノンの悪魔応用）：</span>
+          SPXL・TQQQともに日々の3倍レバレッジの減価（ボラティリティ・ドラッグ）・金利コスト・経費率を織り込んだ円換算指数で計算。毎年12月末に評価額が指定比率になるよう自動リバランスを行います。
         </div>
       </div>
 
@@ -179,7 +201,7 @@
       <div class="grid grid-cols-2 gap-3 md:gap-5 mb-4">
         <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 relative bg-white shadow-sm">
           <div class="flex items-center justify-between mb-1">
-            <span id="cardNameA" class="bg-red-600 text-white font-bold text-xs md:text-sm px-2.5 py-0.5 rounded">S&P500</span>
+            <span id="cardNameA" class="bg-red-600 text-white font-bold text-xs md:text-sm px-2.5 py-0.5 rounded">S&P50:SPXL50</span>
             <span id="cardMultA" class="text-red-600 font-black text-base md:text-xl">1.00倍</span>
           </div>
           <div class="text-[11px] text-slate-500 font-medium">累計元本 <span class="currentPrincipalLabel font-bold text-slate-700">15万円</span> の評価額</div>
@@ -191,7 +213,7 @@
 
         <div class="border-[2.5px] border-slate-800 rounded-xl p-3 md:p-4 relative bg-white shadow-sm">
           <div class="flex items-center justify-between mb-1">
-            <span id="cardNameB" class="bg-blue-600 text-white font-bold text-xs md:text-sm px-2.5 py-0.5 rounded">S&P+TQQQ(50:50)</span>
+            <span id="cardNameB" class="bg-blue-600 text-white font-bold text-xs md:text-sm px-2.5 py-0.5 rounded">S&P50:TQQQ50</span>
             <span id="cardMultB" class="text-blue-600 font-black text-base md:text-xl">1.00倍</span>
           </div>
           <div class="text-[11px] text-slate-500 font-medium">累計元本 <span class="currentPrincipalLabel font-bold text-slate-700">15万円</span> の評価額</div>
@@ -270,8 +292,8 @@
             <label class="block text-xs text-amber-400 font-bold mb-1">📊 ベースにする銘柄・戦略を選択</label>
             <select id="goalAssetSelect" onchange="onGoalAssetChange()" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-amber-500"></select>
             <div class="mt-2 flex items-center justify-between text-xs text-slate-400 bg-slate-800/80 px-3 py-1.5 rounded-lg">
-              <span>長期実績・減価加味ベース期待年率:</span>
-              <span id="histCagrBadge" class="font-black text-amber-400 text-sm">13.0%</span>
+              <span>選択比率での長期基準期待年率:</span>
+              <span id="histCagrBadge" class="font-black text-amber-400 text-sm">11.8%</span>
             </div>
           </div>
 
@@ -280,19 +302,42 @@
             <div class="flex items-center justify-between mb-1">
               <label class="text-xs text-emerald-400 font-bold">⚙️ シミュレーション想定利回り（年率）</label>
               <div class="flex items-center gap-1">
-                <input id="goalCustomRate" type="number" step="0.1" min="0" max="30" value="13.0" oninput="syncRateFromInput()" class="w-16 bg-slate-800 border border-emerald-500 rounded px-2 py-0.5 text-right font-black text-base text-emerald-400 focus:outline-none">
+                <input id="goalCustomRate" type="number" step="0.1" min="0" max="30" value="11.8" oninput="syncRateFromInput()" class="w-16 bg-slate-800 border border-emerald-500 rounded px-2 py-0.5 text-right font-black text-base text-emerald-400 focus:outline-none">
                 <span class="text-xs font-bold text-emerald-400">%</span>
               </div>
             </div>
-            <input id="goalRateSlider" type="range" step="0.1" min="0.5" max="20" value="13.0" oninput="syncRateFromSlider()" class="w-full range-amber cursor-pointer my-1">
+            <input id="goalRateSlider" type="range" step="0.1" min="0.5" max="22" value="11.8" oninput="syncRateFromSlider()" class="w-full range-amber cursor-pointer my-1">
             
             <!-- ワンタップ利回りボタン -->
             <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
               <span class="text-[11px] text-slate-400">ワンタップ:</span>
-              <button onclick="setCustomRate('hist')" class="text-[11px] bg-amber-500/20 border border-amber-500/50 text-amber-300 hover:bg-amber-500/30 px-2 py-0.5 rounded font-bold transition">銘柄基準に戻す</button>
-              <button onclick="setCustomRate(5.0)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded transition">堅実 5%</button>
-              <button onclick="setCustomRate(8.0)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded transition">S&P標準 8%</button>
-              <button onclick="setCustomRate(13.0)" class="text-[11px] bg-blue-600/40 border border-blue-400/50 text-blue-200 hover:bg-blue-600/60 px-2 py-0.5 rounded font-bold transition">50:50リバランス 13%</button>
+              <button onclick="setCustomRate('hist')" class="text-[11px] bg-amber-500/20 border border-amber-500/50 text-amber-300 hover:bg-amber-500/30 px-2 py-0.5 rounded font-bold transition">比率基準に戻す</button>
+              <button onclick="setCustomRate(8.0)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded transition">S&P 8%</button>
+              <button onclick="setCustomRate(11.8)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded transition">S&P+SPXL 11.8%</button>
+              <button onclick="setCustomRate(13.0)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded transition">S&P+TQQQ 13%</button>
+              <button onclick="setCustomRate(15.8)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded transition">QQQ+TQQQ 15.8%</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 未来逆算モード用：カスタム比率スライダー（リバランス戦略選択時のみ表示） -->
+        <div id="goalRatioControlBox" class="mt-3 pt-3 border-t border-slate-800">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+            <div class="text-xs font-bold text-blue-300 flex items-center gap-1.5">
+              <span>🎚️</span> <span>配分比率を調整（変更すると期待年率＆毎月の積立内訳も自動連動！）</span>
+            </div>
+            <div id="goalRatioDisplayBadge" class="text-xs font-black bg-blue-600 text-white px-2.5 py-0.5 rounded">
+              S&P500 50% ： SPXL 50% （実効 2.00倍）
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <input id="goalLevRatioSlider" type="range" min="10" max="90" step="5" value="50" oninput="onGoalRatioChange(this.value)" class="flex-1 min-w-[160px] range-amber cursor-pointer">
+            <div class="flex flex-wrap gap-1">
+              <button onclick="onGoalRatioChange(30)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded font-bold">70:30</button>
+              <button onclick="onGoalRatioChange(40)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded font-bold">60:40</button>
+              <button onclick="onGoalRatioChange(50)" class="text-[11px] bg-amber-500 text-slate-950 px-2 py-1 rounded font-black">50:50</button>
+              <button onclick="onGoalRatioChange(60)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded font-bold">40:60</button>
+              <button onclick="onGoalRatioChange(70)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded font-bold">30:70</button>
             </div>
           </div>
         </div>
@@ -303,7 +348,7 @@
             <input id="goalCompareSpToggle" type="checkbox" checked onchange="calcGoalSim()" class="w-4 h-4 rounded accent-amber-500">
             <span>⚔️ グラフに「S&P500単独（年率8.0%）」の比較ラインも同時表示する</span>
           </label>
-          <span class="text-[11px] text-slate-400">※月15万円なら「S&P500 7.5万 ＋ TQQQ 7.5万」の配分イメージ</span>
+          <span id="goalRatioHintText" class="text-[11px] text-slate-400">※月15万円なら「S&P500 7.5万 ＋ SPXL 7.5万」の配分イメージ</span>
         </div>
       </div>
 
@@ -342,7 +387,7 @@
 
         <!-- モード①用：毎月積立額 ／ モード②用：積立期間(年) -->
         <div id="goalMonthlyBox" class="bg-slate-900/70 p-3 rounded-xl border border-blue-500/60">
-          <label class="block text-xs text-blue-300 font-bold mb-1">📈 毎月の積立総額（半分ずつ配分）</label>
+          <label class="block text-xs text-blue-300 font-bold mb-1">📈 毎月の積立総額（設定比率で配分）</label>
           <div class="flex items-center bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 mb-2">
             <input id="goalMonthlyMan" type="number" value="15" min="0" max="1000" step="0.5" oninput="calcGoalSim()" class="w-full bg-transparent text-base font-black text-white focus:outline-none">
             <span class="text-xs text-slate-400 ml-1">万円</span>
@@ -350,7 +395,7 @@
           <div class="flex flex-wrap gap-1">
             <button onclick="setGoalInput('goalMonthlyMan', 5)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">5万</button>
             <button onclick="setGoalInput('goalMonthlyMan', 10)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">10万</button>
-            <button onclick="setGoalInput('goalMonthlyMan', 15)" class="text-[11px] bg-amber-500/30 border border-amber-400 text-amber-200 hover:bg-amber-500/40 px-2 py-0.5 rounded font-bold">15万(7.5万ずつ)</button>
+            <button onclick="setGoalInput('goalMonthlyMan', 15)" class="text-[11px] bg-amber-500/30 border border-amber-400 text-amber-200 hover:bg-amber-500/40 px-2 py-0.5 rounded font-bold">15万</button>
             <button onclick="setGoalInput('goalMonthlyMan', 20)" class="text-[11px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded">20万</button>
           </div>
         </div>
@@ -378,11 +423,11 @@
       <div class="border-[2.5px] border-slate-800 rounded-2xl p-4 md:p-6 mb-5 bg-gradient-to-br from-slate-50 to-blue-50/40 relative">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
           <div class="flex items-center gap-2">
-            <span id="goalResultAssetBadge" class="bg-slate-900 text-amber-400 text-xs font-bold px-2.5 py-1 rounded">S&P+TQQQ(50:50)</span>
-            <span id="goalResultRateBadge" class="bg-emerald-600 text-white text-xs font-bold px-2.5 py-1 rounded">想定利回り 年率 13.0%</span>
+            <span id="goalResultAssetBadge" class="bg-slate-900 text-amber-400 text-xs font-bold px-2.5 py-1 rounded">S&P50:SPXL50</span>
+            <span id="goalResultRateBadge" class="bg-emerald-600 text-white text-xs font-bold px-2.5 py-1 rounded">想定利回り 年率 11.8%</span>
           </div>
           <div id="goalSplitBadge" class="text-xs font-bold text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded">
-            内訳：S&P500 7.5万円 ＋ TQQQ 7.5万円
+            内訳：S&P500 7.5万円 ＋ SPXL 7.5万円
           </div>
         </div>
 
@@ -390,10 +435,10 @@
           目標 5,000万円 に到達するまでの期間は…
         </div>
         <div id="goalMainAnswerValue" class="text-3xl md:text-5xl font-black text-blue-700 tracking-tight my-1">
-          13年 10か月
+          14年 8か月
         </div>
         <div id="goalSubAnswerText" class="text-xs md:text-sm font-bold text-slate-700 mt-2 bg-white/90 border border-slate-200 rounded-lg px-3 py-2 inline-block">
-          元本合計 2,490万円 ／ 運用益 +2,510万円
+          元本合計 2,640万円 ／ 運用益 +2,360万円
         </div>
 
         <!-- 運用益（不労所得ペース）表示 -->
@@ -412,18 +457,18 @@
       <div class="grid grid-cols-3 gap-2.5 md:gap-4 mb-5">
         <div class="border-[2px] border-slate-800 rounded-xl p-3 bg-white">
           <div class="text-[11px] text-slate-500 font-bold mb-0.5">投資元本の合計</div>
-          <div id="goalCardPrincipal" class="text-base md:text-2xl font-black text-slate-800">2,490万円</div>
-          <div id="goalCardPrincipalSub" class="text-[11px] text-slate-500 mt-0.5">初期0万 + 積立2,490万</div>
+          <div id="goalCardPrincipal" class="text-base md:text-2xl font-black text-slate-800">2,640万円</div>
+          <div id="goalCardPrincipalSub" class="text-[11px] text-slate-500 mt-0.5">初期0万 + 積立2,640万</div>
         </div>
         <div class="border-[2px] border-slate-800 rounded-xl p-3 bg-white">
           <div class="text-[11px] text-slate-500 font-bold mb-0.5">複利で増えた運用益</div>
-          <div id="goalCardProfit" class="text-base md:text-2xl font-black text-emerald-600">+2,510万円</div>
-          <div id="goalCardProfitSub" class="text-[11px] text-slate-500 mt-0.5">元本対比 +101%</div>
+          <div id="goalCardProfit" class="text-base md:text-2xl font-black text-emerald-600">+2,360万円</div>
+          <div id="goalCardProfitSub" class="text-[11px] text-slate-500 mt-0.5">元本対比 +89%</div>
         </div>
         <div class="border-[2px] border-slate-800 rounded-xl p-3 bg-rose-50/70">
           <div id="goalCardCompareTitle" class="text-[11px] text-slate-600 font-bold mb-0.5">S&P500単独(8.0%)なら</div>
           <div id="goalCardCompareVal" class="text-base md:text-2xl font-black text-rose-600">17年 5か月</div>
-          <div id="goalCardCompareSub" class="text-[11px] text-slate-500 mt-0.5">3年7か月短縮！</div>
+          <div id="goalCardCompareSub" class="text-[11px] text-slate-500 mt-0.5">2年9か月短縮！</div>
         </div>
       </div>
 
@@ -443,7 +488,7 @@
       </div>
 
       <div class="mt-3 text-[11px] text-slate-400 leading-relaxed">
-        ※月次複利で計算しています。「S&P500＋TQQQ 50%リバランス」の実質年率13.0%は、TQQQの信託報酬（約0.88%）・金利コスト・ボラティリティ減価・定期リバランス効果を加味した長期平均ベースの試算値です。実際の相場では途中に-50%以上の大きな暴落局面も発生します。
+        ※月次複利で計算しています。「S&P500＋SPXL」「S&P500＋TQQQ」「QQQ＋TQQQ」の基準年率は、3倍レバレッジの信託報酬（約0.88〜0.91%）・金利コスト・ボラティリティ減価・定期リバランス効果を加味した長期平均ベースの試算値です。
       </div>
     </div>
   </div>
@@ -563,8 +608,50 @@ function formatDiff(val, principal) {
 const YEARS = [];
 for (let y = 1989; y <= 2026; y++) YEARS.push(y);
 
+// SPXL疑似年次リターン（S&P500の3倍から日次ボラティリティ減価・金利コスト・経費率0.91%を差し引いた円換算ベース指数）
+// ※1989年=100スタート。2000-2002年ITバブル崩壊は約-62%とTQQQ(-99%)より遥かに浅く、2008年リーマンは-86%下落後に急回復する実態を再現
+const SPXL_VALUES = [
+  100,    // 1989
+  68,     // 1990
+  112,    // 1991
+  130,    // 1992
+  122,    // 1993
+  92,     // 1994
+  245,    // 1995
+  610,    // 1996
+  1920,   // 1997
+  2650,   // 1998
+  3150,   // 1999
+  2980,   // 2000 (-5% S&P500は底堅く耐える)
+  2920,   // 2001 (-2%)
+  1050,   // 2002 (-64% エンロン・ワールドコムショック底)
+  1520,   // 2003 (+45%)
+  1730,   // 2004 (+14%)
+  2780,   // 2005 (+61% 円安＋株高)
+  4150,   // 2006 (+49%)
+  3780,   // 2007 (-9%)
+  530,    // 2008 (-86% リーマンショック)
+  980,    // 2009 (+85% 反発)
+  940,    // 2010 (-4% ボラ減価)
+  810,    // 2011 (-14% 米国債格下げ・欧州危機)
+  1710,   // 2012 (+111%)
+  5640,   // 2013 (+230% アベノミクス円安＋S&P高騰)
+  11850,  // 2014 (+110%)
+  12100,  // 2015 (+2%)
+  14880,  // 2016 (+23%)
+  23210,  // 2017 (+56%)
+  17410,  // 2018 (-25% 年末急落)
+  35690,  // 2019 (+105%)
+  46400,  // 2020 (+30% コロナ急落からのV字回復)
+  116000, // 2021 (+150%)
+  84680,  // 2022 (-27% 円安がクッションになりドル建てより軽傷)
+  186300, // 2023 (+120%)
+  447100, // 2024 (+140%)
+  617000, // 2025 (+38%)
+  728000  // 2026 (+18%)
+];
+
 // TQQQ疑似年次リターン（NASDAQ100の3倍から日次ボラティリティ減価・金利コスト・経費率0.88%を差し引いた円換算ベース指数）
-// ※1989年=100スタート。2000-2002年のITバブル崩壊で累計-99%超下落し、2008年リーマンショックで-83%下落する実態挙動を再現
 const TQQQ_VALUES = [
   100,    // 1989
   62,     // 1990
@@ -612,26 +699,43 @@ const ASSET_DATA = {
     values: [100,91,110,118,117,108,154,214,320,365,395,398,405,290,335,355,425,495,490,255,330,332,322,420,685,905,930,1015,1190,1110,1440,1610,2310,2150,2920,4100,4650,4980],
     customCagr: 8.5
   },
-  sp_tqqq_50: {
-    name: "S&P+TQQQ(50:50)", fullName: "★ S&P500(50%) ＋ TQQQ(50%) 年1回リバランス",
+  sp_spxl: {
+    name: "S&P+SPXL", fullName: "🛡️ S&P500 ＋ SPXL(S&P 3倍) リバランス（比率カスタム可）",
     isRebalanceStrategy: true,
     baseA: "sp500",
+    baseNameA: "S&P500",
+    baseB: "spxl",
+    baseNameB: "SPXL",
+    values: [],
+    customCagr: 11.8
+  },
+  sp_tqqq: {
+    name: "S&P+TQQQ", fullName: "★ S&P500 ＋ TQQQ(NASDAQ 3倍) リバランス（比率カスタム可）",
+    isRebalanceStrategy: true,
+    baseA: "sp500",
+    baseNameA: "S&P500",
     baseB: "tqqq",
-    weightA: 0.5,
-    values: [], // 起動時に動的計算
+    baseNameB: "TQQQ",
+    values: [],
     customCagr: 13.0
   },
-  sp_tqqq_70_30: {
-    name: "S&P70:TQQQ30", fullName: "★ S&P500(70%) ＋ TQQQ(30%) 年1回リバランス",
+  qqq_tqqq: {
+    name: "QQQ+TQQQ", fullName: "🔥 QQQ(NASDAQ100) ＋ TQQQ(3倍) リバランス（比率カスタム可）",
     isRebalanceStrategy: true,
-    baseA: "sp500",
+    baseA: "nasdaq100",
+    baseNameA: "QQQ",
     baseB: "tqqq",
-    weightA: 0.7,
+    baseNameB: "TQQQ",
     values: [],
-    customCagr: 11.2
+    customCagr: 15.8
+  },
+  spxl: {
+    name: "SPXL(S&P3倍単体)", fullName: "S&P500 3倍レバ(SPXL単体・減価加味)",
+    values: SPXL_VALUES,
+    customCagr: 13.2
   },
   tqqq: {
-    name: "TQQQ(3倍単体)", fullName: "米国ハイテク3倍レバ(TQQQ単体・減価加味)",
+    name: "TQQQ(NASDAQ3倍単体)", fullName: "NASDAQ100 3倍レバ(TQQQ単体・減価加味)",
     values: TQQQ_VALUES,
     customCagr: 15.5
   },
@@ -641,9 +745,9 @@ const ASSET_DATA = {
     customCagr: 7.5
   },
   nasdaq100: {
-    name: "NASDAQ100", fullName: "米国大型ハイテク(NASDAQ100)",
+    name: "QQQ(NASDAQ100)", fullName: "米国大型ハイテク(QQQ / NASDAQ100)",
     values: [100,85,130,140,142,130,195,310,430,710,1320,940,730,430,580,620,740,800,910,430,670,710,700,930,1550,2150,2380,2500,3250,3180,4350,6100,8800,6800,11300,16800,19800,21500],
-    customCagr: 11.0
+    customCagr: 11.5
   },
   nikkei: {
     name: "日経平均", fullName: "日経平均株価",
@@ -657,25 +761,42 @@ const ASSET_DATA = {
   }
 };
 
-// リバランス戦略の一括指数推移（年1回リバランス）を事前算出
-['sp_tqqq_50', 'sp_tqqq_70_30'].forEach(key => {
-  const strat = ASSET_DATA[key];
-  const wA = strat.weightA;
-  const wB = 1 - wA;
-  const vA = ASSET_DATA[strat.baseA].values;
-  const vB = ASSET_DATA[strat.baseB].values;
-  const res = [100];
-  let curTotal = 100;
-  for (let i = 1; i < vA.length; i++) {
-    const rA = vA[i] / vA[i - 1];
-    const rB = vB[i] / vB[i - 1];
-    curTotal = curTotal * wA * rA + curTotal * wB * rB;
-    res.push(Math.round(curTotal * 10) / 10);
-  }
-  strat.values = res;
-});
+// グローバル比率状態（3倍レバ側の割合 %）
+let histLevPct = 50;
+let goalLevPct = 50;
 
-// 各銘柄のCAGR設定
+// 選択された戦略と3倍レバ比率(%)に応じた基準期待年率（CAGR）を算出
+function getDynamicCagr(key, levPct) {
+  const asset = ASSET_DATA[key];
+  if (!asset) return 8.0;
+  if (!asset.isRebalanceStrategy) return asset.cagr;
+
+  const wB = levPct / 100; // 3倍レバ比率
+  const wA = 1 - wB;       // 1倍側比率
+  const rebalanceBonus = 1.5 * Math.sin(Math.PI * wB);
+  if (key === 'sp_spxl') {
+    const baseLinear = 8.5 * wA + 12.1 * wB;
+    return Math.round((baseLinear + rebalanceBonus) * 10) / 10;
+  } else if (key === 'sp_tqqq') {
+    const baseLinear = 8.5 * wA + 14.3 * wB;
+    return Math.round((baseLinear + rebalanceBonus + 0.1) * 10) / 10;
+  } else if (key === 'qqq_tqqq') {
+    const baseLinear = 11.5 * wA + 16.9 * wB;
+    return Math.round((baseLinear + rebalanceBonus + 0.1) * 10) / 10;
+  }
+  return asset.customCagr;
+}
+
+// 戦略の表示名（例: "S&P50:SPXL50"）を生成
+function getAssetDisplayName(key, levPct) {
+  const asset = ASSET_DATA[key];
+  if (!asset) return "";
+  if (!asset.isRebalanceStrategy) return asset.name;
+  const basePct = 100 - levPct;
+  return `${asset.baseNameA}${basePct}:${asset.baseNameB}${levPct}`;
+}
+
+// 各銘柄の初期CAGR設定
 Object.keys(ASSET_DATA).forEach(k => {
   if (ASSET_DATA[k].customCagr) {
     ASSET_DATA[k].cagr = ASSET_DATA[k].customCagr;
@@ -693,10 +814,10 @@ const HISTORICAL_EVENTS = {
   1996: "金融ビッグバン構想", 1997: "アジア通貨危機", 1998: "日本長期信用銀行破綻", 1999: "ITバブル絶頂期",
   2000: "ITバブル崩壊（ハイテク大暴落）", 2001: "米国同時多発テロ", 2002: "ITバブル大底（TQQQ -99%級）", 2003: "日経平均大底・米国株反発",
   2004: "新紙幣発行", 2005: "郵政解散・日本株急反発", 2006: "ライブドアショック", 2007: "パリバ・ショック",
-  2008: "リーマンショック（TQQQ -83%）", 2009: "米国株大底から急反発！", 2010: "ギリシャ危機", 2011: "東日本大震災・欧州債務危機",
+  2008: "リーマンショック（3倍レバ -85%級）", 2009: "米国株大底から急反発！", 2010: "ギリシャ危機", 2011: "東日本大震災・欧州債務危機",
   2012: "アベノミクス始動", 2013: "黒田バズーカ・米国株急騰", 2014: "NISA制度スタート", 2015: "チャイナショック",
   2016: "英国EU離脱決定", 2017: "ハイテク株・ビットコイン急騰", 2018: "米中貿易摩擦・年末急落", 2019: "令和改元・米国株高",
-  2020: "コロナショック暴落＆急反発", 2021: "米国歴史的株高", 2022: "FRB急速利上げ（TQQQ -77%）",
+  2020: "コロナショック暴落＆急反発", 2021: "米国歴史的株高", 2022: "FRB急速利上げ（ハイテク急落）",
   2023: "生成AIブーム到来・急反発", 2024: "新NISA開始・米国株最高値更新", 2025: "AI投資拡大・インフレ定着",
   2026: "新NISA普及定着・高値圏推移"
 };
@@ -760,16 +881,47 @@ function setGoalSubMode(sub) {
 
 function onGoalAssetChange() {
   const key = document.getElementById('goalAssetSelect').value;
-  const cagr = ASSET_DATA[key].cagr;
+  const asset = ASSET_DATA[key];
+  const ratioBox = document.getElementById('goalRatioControlBox');
+
+  if (asset && asset.isRebalanceStrategy) {
+    ratioBox.style.display = 'block';
+    updateGoalRatioUI(key, goalLevPct);
+  } else {
+    ratioBox.style.display = 'none';
+  }
+
+  const cagr = getDynamicCagr(key, goalLevPct);
   document.getElementById('histCagrBadge').textContent = `${cagr.toFixed(1)}%`;
   document.getElementById('goalCustomRate').value = cagr.toFixed(1);
-  document.getElementById('goalRateSlider').value = Math.min(20, Math.max(0.5, cagr));
+  document.getElementById('goalRateSlider').value = Math.min(22, Math.max(0.5, cagr));
+  calcGoalSim();
+}
+
+function updateGoalRatioUI(key, levPct) {
+  const asset = ASSET_DATA[key];
+  if (!asset || !asset.isRebalanceStrategy) return;
+  const basePct = 100 - levPct;
+  const effLev = ((basePct * 1 + levPct * 3) / 100).toFixed(2);
+  document.getElementById('goalRatioDisplayBadge').textContent =
+    `${asset.baseNameA} ${basePct}% ： ${asset.baseNameB} ${levPct}% （実効 ${effLev}倍）`;
+  document.getElementById('goalLevRatioSlider').value = levPct;
+}
+
+function onGoalRatioChange(val) {
+  goalLevPct = parseInt(val, 10) || 50;
+  const key = document.getElementById('goalAssetSelect').value;
+  updateGoalRatioUI(key, goalLevPct);
+  const cagr = getDynamicCagr(key, goalLevPct);
+  document.getElementById('histCagrBadge').textContent = `${cagr.toFixed(1)}%`;
+  document.getElementById('goalCustomRate').value = cagr.toFixed(1);
+  document.getElementById('goalRateSlider').value = Math.min(22, Math.max(0.5, cagr));
   calcGoalSim();
 }
 
 function syncRateFromInput() {
   const val = parseFloat(document.getElementById('goalCustomRate').value) || 0;
-  document.getElementById('goalRateSlider').value = Math.min(20, Math.max(0.5, val));
+  document.getElementById('goalRateSlider').value = Math.min(22, Math.max(0.5, val));
   calcGoalSim();
 }
 
@@ -781,9 +933,9 @@ function syncRateFromSlider() {
 
 function setCustomRate(rate) {
   const key = document.getElementById('goalAssetSelect').value;
-  const targetRate = (rate === 'hist') ? ASSET_DATA[key].cagr : rate;
+  const targetRate = (rate === 'hist') ? getDynamicCagr(key, goalLevPct) : rate;
   document.getElementById('goalCustomRate').value = targetRate.toFixed(1);
-  document.getElementById('goalRateSlider').value = Math.min(20, Math.max(0.5, targetRate));
+  document.getElementById('goalRateSlider').value = Math.min(22, Math.max(0.5, targetRate));
   calcGoalSim();
 }
 
@@ -827,29 +979,36 @@ function formatMonthsToYearMonth(months) {
 function calcGoalSim() {
   const key = document.getElementById('goalAssetSelect').value;
   const asset = ASSET_DATA[key];
-  const spRate = 8.0; // S&P500単独の長期比較基準年率
+  const spRate = 8.0;
   const customRate = Math.max(0, parseFloat(document.getElementById('goalCustomRate').value) || 0);
   const showSpCompare = document.getElementById('goalCompareSpToggle').checked;
 
   const targetMan = Math.max(1, parseFloat(document.getElementById('goalTargetMan').value) || 5000);
   const initMan = Math.max(0, parseFloat(document.getElementById('goalInitialMan').value) || 0);
 
-  document.getElementById('goalResultAssetBadge').textContent = asset.name;
+  document.getElementById('goalResultAssetBadge').textContent = getAssetDisplayName(key, goalLevPct);
   document.getElementById('goalResultRateBadge').textContent = `想定利回り 年率 ${customRate.toFixed(1)}%`;
 
-  // 配分内訳バッジ
+  // 配分内訳バッジ＆ヒント更新
   const splitBadge = document.getElementById('goalSplitBadge');
-  if (goalSubMode === 'years') {
+  const ratioHintText = document.getElementById('goalRatioHintText');
+  const baseRatio = (100 - goalLevPct) / 100;
+  const levRatio = goalLevPct / 100;
+
+  if (asset.isRebalanceStrategy) {
+    const sample15A = (15 * baseRatio).toFixed(2).replace(/\.00$/, '');
+    const sample15B = (15 * levRatio).toFixed(2).replace(/\.00$/, '');
+    ratioHintText.textContent = `※月15万円なら「${asset.baseNameA} ${sample15A}万 ＋ ${asset.baseNameB} ${sample15B}万」の配分イメージ`;
+  } else {
+    ratioHintText.textContent = `※単独銘柄シミュレーション`;
+  }
+
+  if (goalSubMode === 'years' && asset.isRebalanceStrategy) {
     const mPmt = Math.max(0, parseFloat(document.getElementById('goalMonthlyMan').value) || 0);
-    if (key === 'sp_tqqq_50') {
-      splitBadge.style.display = 'inline-block';
-      splitBadge.textContent = `内訳：S&P500 ${(mPmt / 2).toFixed(1)}万円 ＋ TQQQ ${(mPmt / 2).toFixed(1)}万円`;
-    } else if (key === 'sp_tqqq_70_30') {
-      splitBadge.style.display = 'inline-block';
-      splitBadge.textContent = `内訳：S&P500 ${(mPmt * 0.7).toFixed(1)}万円 ＋ TQQQ ${(mPmt * 0.3).toFixed(1)}万円`;
-    } else {
-      splitBadge.style.display = 'none';
-    }
+    const pmtA = (mPmt * baseRatio).toFixed(2).replace(/\.00$/, '');
+    const pmtB = (mPmt * levRatio).toFixed(2).replace(/\.00$/, '');
+    splitBadge.style.display = 'inline-block';
+    splitBadge.textContent = `毎月内訳：${asset.baseNameA} ${pmtA}万円 ＋ ${asset.baseNameB} ${pmtB}万円`;
   } else {
     splitBadge.style.display = 'none';
   }
@@ -1111,7 +1270,7 @@ function drawGoalChart(targetMan, initMan, monthlyMan, totalMonths, customRate, 
 }
 
 // ==========================================
-// 4. 過去比較シミュレーター側の処理（リバランス計算対応）
+// 4. 過去比較シミュレーター側の処理（カスタム比率リバランス対応）
 // ==========================================
 let investMode = 'dca';
 let timeline = [];
@@ -1134,13 +1293,14 @@ function init() {
   Object.keys(ASSET_DATA).forEach(key => {
     assetASelect.add(new Option(ASSET_DATA[key].fullName, key));
     assetBSelect.add(new Option(ASSET_DATA[key].fullName, key));
-    goalAssetSelect.add(new Option(`${ASSET_DATA[key].fullName} [基準年率: ${ASSET_DATA[key].cagr.toFixed(1)}%]`, key));
+    const rateLabel = ASSET_DATA[key].isRebalanceStrategy ? '比率連動' : `基準年率: ${ASSET_DATA[key].cagr.toFixed(1)}%`;
+    goalAssetSelect.add(new Option(`${ASSET_DATA[key].fullName} [${rateLabel}]`, key));
   });
 
-  // デフォルトを「S&P500 vs S&P500+TQQQ(50:50リバランス)」に設定
-  assetASelect.value = 'sp500';
-  assetBSelect.value = 'sp_tqqq_50';
-  goalAssetSelect.value = 'sp_tqqq_50';
+  // デフォルトを「S&P500+SPXL vs S&P500+TQQQ(50:50リバランス)」に設定
+  assetASelect.value = 'sp_spxl';
+  assetBSelect.value = 'sp_tqqq';
+  goalAssetSelect.value = 'sp_spxl';
 
   for (let y = 1989; y <= 2024; y++) {
     const label = HISTORICAL_EVENTS[y] ? `${y}年12月 (${HISTORICAL_EVENTS[y].slice(0, 12)}...)` : `${y}年12月`;
@@ -1181,12 +1341,22 @@ function init() {
   onGoalAssetChange();
 }
 
-function applyHistPreset(keyA, keyB, mode, amount, year) {
+function onHistRatioChange(val) {
+  histLevPct = parseInt(val, 10) || 50;
+  document.getElementById('histLevRatioSlider').value = histLevPct;
+  stopPlay();
+  buildTimeline();
+  renderFrame();
+}
+
+function applyHistPreset(keyA, keyB, mode, amount, year, levPct = 50) {
   stopPlay();
   assetASelect.value = keyA;
   assetBSelect.value = keyB;
   startYearSelect.value = year;
   investMode = mode;
+  histLevPct = levPct;
+  document.getElementById('histLevRatioSlider').value = histLevPct;
 
   const lumpBtn = document.getElementById('modeLumpBtn');
   const dcaBtn = document.getElementById('modeDcaBtn');
@@ -1253,7 +1423,7 @@ function renderAmountPresets() {
       <span class="text-xs text-slate-400 mr-1">積立額:</span>
       <button onclick="setAmount(5)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">月5万</button>
       <button onclick="setAmount(10)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">月10万</button>
-      <button onclick="setAmount(15)" class="text-xs bg-amber-500/30 border border-amber-400 text-amber-200 hover:bg-amber-500/40 px-2.5 py-1 rounded font-bold transition">月15万(7.5万ずつ)</button>
+      <button onclick="setAmount(15)" class="text-xs bg-amber-500/30 border border-amber-400 text-amber-200 hover:bg-amber-500/40 px-2.5 py-1 rounded font-bold transition">月15万</button>
       <button onclick="setAmount(30)" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded transition">月30万</button>
     `;
   }
@@ -1282,8 +1452,8 @@ function seededNoise(seed) {
   return x - Math.floor(x);
 }
 
-// 単一銘柄の月次評価額シリーズを生成（リバランス戦略の場合は毎年12月に比率リセット）
-function simulateSeries(assetKey, startIdx, inputMan) {
+// 単一銘柄の月次評価額シリーズを生成（リバランス戦略の場合は毎年12月にカスタム比率リセット）
+function simulateSeries(assetKey, startIdx, inputMan, customLevPct = 50) {
   const asset = ASSET_DATA[assetKey];
   const results = [];
 
@@ -1301,7 +1471,10 @@ function simulateSeries(assetKey, startIdx, inputMan) {
       const next = raw[i + 1] / startVal;
       for (let m = 1; m <= 12; m++) {
         const t = m / 12;
-        const wave = (m === 12) ? 0 : (seededNoise(y * 100 + m * 7 + (assetKey === 'tqqq' ? 9 : 1)) - 0.5) * (assetKey === 'tqqq' ? 0.12 : 0.045);
+        const is3x = (assetKey === 'tqqq' || assetKey === 'spxl');
+        const seedOffset = assetKey === 'tqqq' ? 9 : (assetKey === 'spxl' ? 6 : (assetKey === 'nasdaq100' ? 4 : 1));
+        const volAmp = is3x ? 0.115 : (assetKey === 'nasdaq100' ? 0.06 : 0.045);
+        const wave = (m === 12) ? 0 : (seededNoise(y * 100 + m * 7 + seedOffset) - 0.5) * volAmp;
         const price = Math.max(0.01, (prev + (next - prev) * t) * (1 + wave));
         if (investMode === 'dca') {
           totalPrincipal += inputMan;
@@ -1312,9 +1485,9 @@ function simulateSeries(assetKey, startIdx, inputMan) {
     }
     return results;
   } else {
-    // リバランス戦略（例：S&P500 50% ＋ TQQQ 50% を毎年12月末にリバランス）
-    const wA = asset.weightA;
-    const wB = 1 - wA;
+    // リバランス戦略（例：S&P500またはQQQ ＋ SPXLまたはTQQQ を毎年12月末にカスタム比率でリバランス）
+    const wB = customLevPct / 100; // 3倍レバの比率
+    const wA = 1 - wB;             // 土台（S&P500 or QQQ）の比率
     const rawA = ASSET_DATA[asset.baseA].values.slice(startIdx);
     const rawB = ASSET_DATA[asset.baseB].values.slice(startIdx);
     const startA = rawA[0];
@@ -1332,17 +1505,20 @@ function simulateSeries(assetKey, startIdx, inputMan) {
       const prevB = rawB[i] / startB;
       const nextB = rawB[i + 1] / startB;
 
+      const seedOffsetA = asset.baseA === 'nasdaq100' ? 4 : 1;
+      const volAmpA = asset.baseA === 'nasdaq100' ? 0.06 : 0.045;
+      const seedOffsetB = asset.baseB === 'tqqq' ? 9 : 6;
+
       for (let m = 1; m <= 12; m++) {
         const t = m / 12;
-        const waveA = (m === 12) ? 0 : (seededNoise(y * 100 + m * 7 + 1) - 0.5) * 0.045;
-        const waveB = (m === 12) ? 0 : (seededNoise(y * 100 + m * 7 + 9) - 0.5) * 0.12;
+        const waveA = (m === 12) ? 0 : (seededNoise(y * 100 + m * 7 + seedOffsetA) - 0.5) * volAmpA;
+        const waveB = (m === 12) ? 0 : (seededNoise(y * 100 + m * 7 + seedOffsetB) - 0.5) * 0.115;
 
         const priceA = Math.max(0.01, (prevA + (nextA - prevA) * t) * (1 + waveA));
         const priceB = Math.max(0.01, (prevB + (nextB - prevB) * t) * (1 + waveB));
 
         if (investMode === 'dca') {
           totalPrincipal += inputMan;
-          // 毎月の積立額は目標比率（wA : wB）で買い付け
           unitsA += (inputMan * wA) / priceA;
           unitsB += (inputMan * wB) / priceB;
         }
@@ -1371,8 +1547,8 @@ function buildTimeline() {
   const inputMan = parseFloat(initialAmountInput.value) || (investMode === 'lump' ? 100 : 15);
   const startIdx = YEARS.indexOf(startY);
 
-  const seriesA = simulateSeries(keyA, startIdx, inputMan);
-  const seriesB = simulateSeries(keyB, startIdx, inputMan);
+  const seriesA = simulateSeries(keyA, startIdx, inputMan, histLevPct);
+  const seriesB = simulateSeries(keyB, startIdx, inputMan, histLevPct);
 
   timeline = [];
   for (let idx = 0; idx < seriesA.length; idx++) {
@@ -1396,12 +1572,24 @@ function buildTimeline() {
 
   seekBar.max = timeline.length - 1;
 
-  const nameA = ASSET_DATA[keyA].name;
-  const nameB = ASSET_DATA[keyB].name;
+  const nameA = getAssetDisplayName(keyA, histLevPct);
+  const nameB = getAssetDisplayName(keyB, histLevPct);
   document.getElementById('badgeVs').textContent = `${nameA} vs ${nameB}`;
 
   const hasRebalance = ASSET_DATA[keyA].isRebalanceStrategy || ASSET_DATA[keyB].isRebalanceStrategy;
   document.getElementById('rebalanceStrategyBanner').style.display = hasRebalance ? 'flex' : 'none';
+  document.getElementById('histRatioControlBox').style.display = hasRebalance ? 'block' : 'none';
+
+  if (hasRebalance) {
+    const basePct = 100 - histLevPct;
+    const effLev = ((basePct * 1 + histLevPct * 3) / 100).toFixed(2);
+    const activeStrat = ASSET_DATA[keyB].isRebalanceStrategy ? ASSET_DATA[keyB] : ASSET_DATA[keyA];
+    document.getElementById('histRatioDisplayBadge').textContent =
+      `土台(1倍) ${basePct}% ： 3倍レバ ${histLevPct}% （実効 ${effLev}倍）`;
+    document.getElementById('rebalanceBannerText').innerHTML =
+      `<span class="font-black text-blue-900">カスタム比率リバランス（${basePct}% ： ${histLevPct}% ／ 実効${effLev}倍）：</span>` +
+      `SPXL・TQQQともに3倍レバレッジの減価・金利コスト・経費率を織り込んだ指数で計算。毎年12月末に評価額が<strong>${basePct}%：${histLevPct}%</strong>になるよう自動リバランスを行います。`;
+  }
 
   const modeBadge = document.getElementById('modeBadge');
   const formattedInput = formatMoney(inputMan);
@@ -1473,7 +1661,7 @@ function renderFrame() {
 
   document.getElementById('eventLabel').textContent = HISTORICAL_EVENTS[pt.year] || `${pt.year}年の相場推移`;
 
-  drawChart(ASSET_DATA[keyA].name, ASSET_DATA[keyB].name);
+  drawChart(getAssetDisplayName(keyA, histLevPct), getAssetDisplayName(keyB, histLevPct));
 }
 
 function drawChart(nameA, nameB) {
